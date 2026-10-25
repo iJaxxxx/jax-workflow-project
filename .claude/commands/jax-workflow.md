@@ -151,10 +151,13 @@ argument-hint: <可选：PRD 路径或链接 / 模块名，例如 docs/prd/admin
 
 ### B2. 代码评审（每个模块只做一轮）
 
-模块里除冒烟测试外的 task 都完成后：
+模块里除冒烟测试外的 task 都完成后，用 Codex 插件（[openai/codex-plugin-cc](https://github.com/openai/codex-plugin-cc)）评审：
 
-- 本机有 `codex` 命令（`command -v codex`）→ 执行 `codex review`，评审本模块的提交
-- 没有 → 派一个子代理做评审：只看本模块的 diff（`git diff <模块开始前的提交>..HEAD`），对照 `requirements.md` 和 `design.md`，按 P0（会出错、有安全问题）/ P1（逻辑缺陷、边界情况没处理）/ P2（风格、可读性）分级列出问题
+1. 记下本模块开始前的提交 `<base>`（本模块第一个 task 提交的父提交）
+2. 执行 `/codex:review --base <base> --wait`，只评审本模块的提交，等结果出来再往下走
+3. 拿到结果后，按 P0（会出错、有安全问题）/ P1（逻辑缺陷、边界情况没处理）/ P2（风格、可读性）给问题分级
+
+`/codex:review` 不可用时（插件没装、Codex 没登录、或者调用不了这个命令），**不要卡住**，改为派一个子代理做评审：只看 `git diff <base>..HEAD`，对照 `requirements.md` 和 `design.md`，按同样的 P0 / P1 / P2 分级列出问题。汇报时说明这次用的是哪种评审。
 
 **只修 P0 和 P1**，P2 记到本模块 `tasks.md` 的"遗留"一节。修完提交，**不做第二轮评审**。
 

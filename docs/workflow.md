@@ -40,8 +40,8 @@ flowchart TD
         More -->|"是"| B1
         More -->|"否"| B2
 
-        B2{"本机有 codex？"} -->|"有"| Codex["codex review"]
-        B2 -->|"没有"| SubReview["子代理评审<br/>按 P0 / P1 / P2 分级"]
+        B2{"/codex:review 可用？"} -->|"可用"| Codex["/codex:review --base 模块起点 --wait"]
+        B2 -->|"不可用"| SubReview["子代理评审<br/>按 P0 / P1 / P2 分级"]
         Codex --> FixP["只修 P0、P1<br/>P2 记为遗留 → 提交<br/>（只评审一轮）"]
         SubReview --> FixP
 
@@ -89,8 +89,8 @@ flowchart TD
       │     │  每个 task：db:push → check-types + check → 勾选 [x] → git commit
       │     ▼
       ├─ B2. 代码评审（一轮）
-      │     │  有 codex ──→ codex review
-      │     │  没有 ──→ 子代理按 P0 / P1 / P2 分级评审
+      │     │  Codex 插件可用 ──→ /codex:review --base <模块起点> --wait
+      │     │  不可用 ──→ 子代理按 P0 / P1 / P2 分级评审
       │     │  只修 P0、P1，P2 记为遗留 → 提交
       │     ▼
       ├─ B3. 冒烟测试
@@ -116,6 +116,20 @@ flowchart TD
 | 按需加载上下文 | 每个阶段只读需要的文档，省 Token，减少跑偏 |
 | 评审只做一轮，只修 P0、P1 | 多轮评审慢、费 Token，还容易偏离需求 |
 | 经验沉淀到 AGENTS.md | 下一轮开发自动带上，工作流越用越贴合项目 |
+
+## 准备：安装 Codex 评审插件
+
+代码评审用 OpenAI 官方的 Claude Code 插件 [openai/codex-plugin-cc](https://github.com/openai/codex-plugin-cc)。在 Claude Code 里依次执行：
+
+1. `/plugin marketplace add openai/codex-plugin-cc`
+2. `/plugin install codex@openai-codex`
+3. `/reload-plugins`
+4. `/codex:setup`：检查安装和登录。没装 Codex CLI 时，可以让它装，也可以自己执行 `npm install -g @openai/codex`
+5. 没登录时执行 `!codex login`
+
+需要 ChatGPT 账号（免费版也行）或 OpenAI API key，评审会消耗 Codex 的额度。插件的 review gate（每次回复后自动评审）默认关闭，保持关闭，否则和"只评审一轮"冲突，还很费额度。
+
+没装插件也能跑，评审会自动换成 Claude 子代理。
 
 ## 使用
 

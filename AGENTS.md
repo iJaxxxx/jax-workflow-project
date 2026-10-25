@@ -38,6 +38,8 @@ Better-T-Stack 生成的 pnpm + Turborepo monorepo。
 - specs 不存在或不完整 → 读 `docs/prd/` 下的 PRD，拆成 `specs/NN-模块/{requirements,design,tasks}.md`，写 `specs/status.md`（`状态: 待确认`），然后停下来等人工确认
 - `specs/status.md` 是 `状态: 已确认` → 从第一个未勾选的 task 断点续跑：开发 → 一轮评审 → 冒烟测试 → 提交
 
+代码评审用 Codex 插件的 `/codex:review --base <模块起点> --wait`（安装见 `docs/workflow.md`），插件不可用时改用 Claude 子代理评审。
+
 ## 测试账号
 
 - （本地注册后填在这里，例如 `admin@test.local`）
