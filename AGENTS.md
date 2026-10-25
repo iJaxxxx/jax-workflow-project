@@ -33,10 +33,10 @@ Better-T-Stack 生成的 pnpm + Turborepo monorepo。
 
 ## 开发工作流
 
-需求开发走两个命令，流程见 `docs/workflow.md`：
+需求开发统一走 `/jax-workflow [PRD 或模块名]`，流程见 `docs/workflow.md`。入口先判断 `specs/` 的状态：
 
-1. `/prd-split <PRD>`：把 `docs/prd/` 下的 PRD 拆成 `specs/NN-模块/{requirements,design,tasks}.md`
-2. `/dev-loop`：按 `tasks.md` 逐条开发 → 评审 → 冒烟测试 → 提交，支持断点续跑
+- specs 不存在或不完整 → 读 `docs/prd/` 下的 PRD，拆成 `specs/NN-模块/{requirements,design,tasks}.md`，写 `specs/status.md`（`状态: 待确认`），然后停下来等人工确认
+- `specs/status.md` 是 `状态: 已确认` → 从第一个未勾选的 task 断点续跑：开发 → 一轮评审 → 冒烟测试 → 提交
 
 ## 测试账号
 
@@ -44,7 +44,7 @@ Better-T-Stack 生成的 pnpm + Turborepo monorepo。
 
 ## 经验
 
-<!-- /dev-loop 每轮结束后把踩过的坑追加在这里 -->
+<!-- /jax-workflow 每轮结束后把踩过的坑追加在这里 -->
 
 ---
 
