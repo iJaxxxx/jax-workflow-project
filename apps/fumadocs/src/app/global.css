@@ -1,3 +1,4 @@
+/* biome-ignore-all lint/complexity/noImportantStyles: must override the inline styles injected by the scroll-lock library */
 @import "tailwindcss";
 @import "fumadocs-ui/css/neutral.css";
 @import "fumadocs-ui/css/preset.css";

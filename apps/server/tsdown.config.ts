@@ -1,11 +1,11 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-  entry: "./src/index.ts",
-  format: "esm",
-  outDir: "./dist",
-  clean: true,
-  deps: {
-    alwaysBundle: [/@jax-workflow-project\/.*/],
-  },
+	clean: true,
+	deps: {
+		alwaysBundle: [/@jax-workflow-project\/.*/],
+	},
+	entry: "./src/index.ts",
+	format: "esm",
+	outDir: "./dist",
 });

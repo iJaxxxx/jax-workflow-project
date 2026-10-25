@@ -1,6 +1,10 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["ultracite/biome/core", "ultracite/biome/react", "ultracite/biome/next"],
+  "extends": [
+    "ultracite/biome/core",
+    "ultracite/biome/react",
+    "ultracite/biome/next"
+  ],
   "vcs": {
     "enabled": false,
     "clientKind": "git",
@@ -9,7 +13,6 @@
   "files": {
     "ignoreUnknown": false,
     "includes": [
-      "**",
       "!**/.next",
       "!**/dist",
       "!**/.turbo",
@@ -27,26 +30,28 @@
       "!**/.svelte-kit",
       "!**/wrangler.jsonc",
       "!**/.source",
-      "!**/convex/_generated"
+      "!**/convex/_generated",
+      "!**/.agents",
+      "!**/prisma/generated"
     ]
   },
   "formatter": {
     "enabled": true,
     "indentStyle": "tab"
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
       "preset": "recommended",
       "correctness": {
         "useExhaustiveDependencies": "info"
-      },
-      "nursery": {
-        "useTailwindSortedClasses": {
-          "level": "warn",
-          "fix": "safe"
-        }
       },
       "style": {
         "noParameterAssign": "error",
@@ -59,6 +64,9 @@
         "useNumberNamespace": "error",
         "noInferrableTypes": "error",
         "noUselessElse": "error"
+      },
+      "performance": {
+        "noJsxPropsBind": "off"
       }
     }
   },
@@ -71,5 +79,13 @@
     "parser": {
       "tailwindDirectives": true
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["packages/ui/src/components/**", "packages/ui/src/lib/**"],
+      "linter": {
+        "enabled": false
+      }
+    }
+  ]
 }
