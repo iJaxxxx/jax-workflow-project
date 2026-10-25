@@ -1,0 +1,22 @@
+{
+  "name": "@jax-workflow-project/api",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@jax-workflow-project/auth": "workspace:*",
+    "@jax-workflow-project/db": "workspace:*",
+    "@trpc/client": "catalog:",
+    "@trpc/server": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@jax-workflow-project/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
