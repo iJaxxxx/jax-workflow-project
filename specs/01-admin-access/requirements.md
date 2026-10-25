@@ -12,16 +12,16 @@
 - 第一个管理员通过数据库手动设置：`UPDATE "user" SET role = 'admin' WHERE email = '<邮箱>';`（或在 `pnpm db:studio` 里改），本期不做界面
 
 ## 验收标准
-- [ ] AC1：给定新注册的用户，当查询数据库，那么该用户的 `role` 为 `user`
-- [ ] AC2：给定注册请求的 body 里带上 `role: "admin"`，当注册成功，那么该用户的 `role` 仍为 `user`
-- [ ] AC3：给定未登录，当访问 `/dashboard`，那么跳转到 `/login?redirect=%2Fdashboard`
-- [ ] AC4：给定未登录，当访问 `/dashboard/users?page=2`，那么跳转到 `/login`，登录成功后回到 `/dashboard/users?page=2`
-- [ ] AC5：给定登录页 URL 为 `/login?redirect=https://evil.com` 或 `/login?redirect=//evil.com`，当登录成功，那么跳到默认页面而不是外部站点
-- [ ] AC6：给定以普通用户身份登录，当访问 `/dashboard` 或任意子页面，那么页面只显示"无权限访问"，看不到后台导航和任何后台数据
-- [ ] AC7：给定以普通用户身份登录，当直接请求任一"仅管理员"的 tRPC 接口，那么返回 `FORBIDDEN`
-- [ ] AC8：给定以管理员身份登录，当访问 `/dashboard`，那么后台顶部显示当前管理员的名字和邮箱、"用户管理""操作日志"导航和退出按钮
-- [ ] AC9：给定管理员在后台，当点击退出，那么退出登录并跳到 `/login`，此时再访问 `/dashboard` 会再次被要求登录
-- [ ] AC10：给定登录页 URL 不带 `redirect` 参数，当任意用户登录或注册成功，那么跳到首页 `/`；普通用户通过顶部已有的用户菜单看到自己的名字和邮箱（不新做个人信息页）
+- [x] AC1：给定新注册的用户，当查询数据库，那么该用户的 `role` 为 `user`
+- [x] AC2：给定注册请求的 body 里带上 `role: "admin"`，当注册成功，那么该用户的 `role` 仍为 `user`
+- [x] AC3：给定未登录，当访问 `/dashboard`，那么跳转到 `/login?redirect=%2Fdashboard`
+- [x] AC4：给定未登录，当访问 `/dashboard/users?page=2`，那么跳转到 `/login`，登录成功后回到 `/dashboard/users?page=2`
+- [x] AC5：给定登录页 URL 为 `/login?redirect=https://evil.com` 或 `/login?redirect=//evil.com`，当登录成功，那么跳到默认页面而不是外部站点
+- [x] AC6：给定以普通用户身份登录，当访问 `/dashboard` 或任意子页面，那么页面只显示"无权限访问"，看不到后台导航和任何后台数据
+- [x] AC7：给定以普通用户身份登录，当直接请求任一"仅管理员"的 tRPC 接口，那么返回 `FORBIDDEN`
+- [x] AC8：给定以管理员身份登录，当访问 `/dashboard`，那么后台顶部显示当前管理员的名字和邮箱、"用户管理""操作日志"导航和退出按钮
+- [x] AC9：给定管理员在后台，当点击退出，那么退出登录并跳到 `/login`，此时再访问 `/dashboard` 会再次被要求登录
+- [x] AC10：给定登录页 URL 不带 `redirect` 参数，当任意用户登录或注册成功，那么跳到首页 `/`；普通用户通过顶部已有的用户菜单看到自己的名字和邮箱（不新做个人信息页）
 
 ## 不做的事
 - 设置 / 取消管理员的界面
