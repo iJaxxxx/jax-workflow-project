@@ -1,0 +1,18 @@
+enum OperationAction {
+  USER_BAN
+  USER_UNBAN
+}
+
+model OperationLog {
+  id         String          @id @default(cuid())
+  action     OperationAction
+  operatorId String
+  operator   User            @relation("OperationLogOperator", fields: [operatorId], references: [id], onDelete: Restrict)
+  targetId   String
+  target     User            @relation("OperationLogTarget", fields: [targetId], references: [id], onDelete: Restrict)
+  createdAt  DateTime        @default(now())
+
+  @@index([createdAt])
+  @@index([action, createdAt])
+  @@map("operation_log")
+}
