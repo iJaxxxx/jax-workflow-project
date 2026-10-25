@@ -5,7 +5,7 @@
 - [x] T3 用 shadcn CLI 添加 `alert-dialog`、`table` 组件 | 依赖: 无 | 文件: packages/ui/src/components/alert-dialog.tsx, packages/ui/src/components/table.tsx | 可并行
 - [x] T4 tRPC 客户端遇到 `UNAUTHORIZED` 时跳转登录页 | 依赖: 无 | 文件: apps/web/src/utils/trpc.ts | 可并行
 - [x] T5 `/dashboard/users` 页面：搜索、表格、分页、禁用 / 启用 + 确认弹窗、空状态 | 依赖: T2, T3 | 文件: apps/web/src/app/dashboard/users/page.tsx, apps/web/src/app/dashboard/users/users-table.tsx | 串行
-- [ ] T6 冒烟测试：按 requirements.md 的验收标准逐条验证 | 依赖: T4, T5 | 串行
+- [x] T6 冒烟测试：按 requirements.md 的验收标准逐条验证 | 依赖: T4, T5 | 串行
 
 ## 遗留
 <!-- 评审中没修的 P2 记在这里 -->
