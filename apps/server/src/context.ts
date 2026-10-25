@@ -14,7 +14,8 @@ export async function createContext({
 	});
 	return {
 		db,
-		session,
+		// Sessions are deleted when a user is banned; this is a fallback in case one survives.
+		session: session?.user.banned ? null : session,
 	};
 }
 
