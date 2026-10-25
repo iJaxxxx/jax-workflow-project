@@ -32,7 +32,10 @@
       "!**/.source",
       "!**/convex/_generated",
       "!**/.agents",
-      "!**/prisma/generated"
+      "!**/prisma/generated",
+      "!**/*.svg",
+      "!apps/*/src/env.ts",
+      "!packages/*/src/env.ts"
     ]
   },
   "formatter": {
