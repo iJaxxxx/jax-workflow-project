@@ -63,16 +63,6 @@ function EmptyState({
 	onReset: () => void;
 	page: number;
 }) {
-	if (hasSearch) {
-		return (
-			<Empty>
-				<EmptyHeader>
-					<EmptyTitle>没有找到匹配的用户</EmptyTitle>
-					<EmptyDescription>换个名字或邮箱关键词试试。</EmptyDescription>
-				</EmptyHeader>
-			</Empty>
-		);
-	}
 	if (page > 1) {
 		return (
 			<Empty>
@@ -82,6 +72,16 @@ function EmptyState({
 				<Button onClick={onReset} variant="outline">
 					回到第 1 页
 				</Button>
+			</Empty>
+		);
+	}
+	if (hasSearch) {
+		return (
+			<Empty>
+				<EmptyHeader>
+					<EmptyTitle>没有找到匹配的用户</EmptyTitle>
+					<EmptyDescription>换个名字或邮箱关键词试试。</EmptyDescription>
+				</EmptyHeader>
 			</Empty>
 		);
 	}

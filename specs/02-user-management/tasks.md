@@ -9,3 +9,9 @@
 
 ## 遗留
 <!-- 评审中没修的 P2 记在这里 -->
+- P2 URL 的 `search` 从外部变化（如点导航"用户管理"）时没有同步回输入框，防抖会把旧搜索词写回 URL
+- P2 QueryClient 默认重试 3 次，UNAUTHORIZED 约 7 秒后才跳登录页；建议对 UNAUTHORIZED/FORBIDDEN 不重试
+- P2 mutation 遇到 UNAUTHORIZED 时，本地 onError 先弹英文 toast 再跳转
+- P2 setBanned 幂等分支（已是禁用状态）不删除会话；直接改库或登录与禁用并发时可能残留会话，web 端 getSession 仍视为登录
+- P2 列表查询出错时表格区域空白，没有错误状态和重试按钮
+- P2 确认弹窗关闭动画期间文案闪变（pending 置空过早）
