@@ -6,6 +6,59 @@
 
 ## 流程图
 
+GitHub、VS Code（装 Markdown Preview Mermaid Support 插件）和飞书文档都能直接渲染下面这张图。
+
+```mermaid
+flowchart TD
+    Start(["/jax-workflow [PRD 或模块名]"]) --> Init["读 AGENTS.md<br/>检查 git status"]
+    Init --> Judge{"specs 状态？"}
+
+    Judge -->|"给了新 PRD / specs 不存在 / 有模块缺文件"| A1
+    Judge -->|"status.md = 待确认"| A6
+    Judge -->|"status.md = 已确认<br/>还有未勾选的 task"| B1
+    Judge -->|"所有 task 已完成"| Done(["结束"])
+
+    subgraph A["A. 拆需求（只写 specs，不写代码）"]
+        A1["A1 读目录结构、Prisma schema、<br/>tRPC 路由、现有页面"] --> A2["A2 读 PRD，按功能模块拆分<br/>按依赖编号 01-、02-…"]
+        A2 --> A3["A3 每个模块生成<br/>requirements / design / tasks"]
+        A3 --> A4["A4 自查：每个功能点<br/>都有验收标准"]
+        A4 --> A5["A5 写 specs/status.md<br/>状态: 待确认"]
+        A5 --> A6["A6 停下汇报"]
+    end
+
+    A6 --> Human{"人工检查<br/>功能有没有漏？"}
+    Human -->|"要改"| Fix["按意见改 specs"] --> A6
+    Human -->|"确认"| Confirm["status.md 改为已确认<br/>提交 specs"] --> B1
+
+    subgraph B["B. 开发（从第一个未勾选的 task 断点续跑）"]
+        B1["B1 只加载当前模块的 specs<br/>按依赖分批"] --> Split{"task 类型"}
+        Split -->|"可并行且文件不重叠"| Para["派子代理并行开发"]
+        Split -->|"串行（含改数据库）"| Seq["自己按顺序开发"]
+        Para --> Each["每个 task：db:push → check-types + check<br/>→ 勾选 [x] → git commit"]
+        Seq --> Each
+        Each --> More{"本模块还有<br/>未完成的开发 task？"}
+        More -->|"是"| B1
+        More -->|"否"| B2
+
+        B2{"本机有 codex？"} -->|"有"| Codex["codex review"]
+        B2 -->|"没有"| SubReview["子代理评审<br/>按 P0 / P1 / P2 分级"]
+        Codex --> FixP["只修 P0、P1<br/>P2 记为遗留 → 提交<br/>（只评审一轮）"]
+        SubReview --> FixP
+
+        FixP --> B3["B3 冒烟测试<br/>pnpm dev，按验收标准逐条验证"]
+        B3 --> Pass{"全部通过？"}
+        Pass -->|"否"| Repair["修复"] --> B3
+        Pass -->|"是"| Commit["勾选冒烟测试 → 提交"]
+        Commit --> Next{"还有下一个模块？"}
+        Next -->|"是"| B1
+    end
+
+    Next -->|"否"| B4["B4 经验写入 AGENTS.md「经验」<br/>汇报完成情况和遗留问题"]
+    B4 --> Done
+```
+
+### 文字版
+
 ```
 /jax-workflow [PRD 或模块名]
 │
