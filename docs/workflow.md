@@ -42,7 +42,7 @@ flowchart TD
 
         B2{"/codex:review 可用？"} -->|"可用"| Codex["/codex:review --base 模块起点 --wait"]
         B2 -->|"不可用"| SubReview["子代理评审<br/>按 P0 / P1 / P2 分级"]
-        Codex --> FixP["只修 P0、P1<br/>P2 记为遗留 → 提交<br/>（只评审一轮）"]
+        Codex --> FixP["Claude 只修 P0、P1<br/>P2 记为遗留 → 提交<br/>（修完不再评审）"]
         SubReview --> FixP
 
         FixP --> B3["B3 冒烟测试<br/>pnpm dev，按验收标准逐条验证"]
@@ -91,7 +91,7 @@ flowchart TD
       ├─ B2. 代码评审（一轮）
       │     │  Codex 插件可用 ──→ /codex:review --base <模块起点> --wait
       │     │  不可用 ──→ 子代理按 P0 / P1 / P2 分级评审
-      │     │  只修 P0、P1，P2 记为遗留 → 提交
+      │     │  Claude 只修 P0、P1，P2 记为遗留 → 提交（修完不再调 Codex 复查）
       │     ▼
       ├─ B3. 冒烟测试
       │     │  pnpm dev → 按 requirements 的验收标准逐条验证
@@ -114,7 +114,7 @@ flowchart TD
 | task 标注依赖、文件、串行 / 并行 | 决定哪些能派子代理并行；数据库迁移并行会冲突 |
 | 每完成一项就勾选并提交 | 中断后能从断点继续，评审也只看本模块的提交 |
 | 按需加载上下文 | 每个阶段只读需要的文档，省 Token，减少跑偏 |
-| 评审只做一轮，只修 P0、P1 | 多轮评审慢、费 Token，还容易偏离需求 |
+| 评审只做一轮，Claude 修完 P0、P1 后不再让 Codex 复查 | 多轮评审慢、费 Token，还容易偏离需求 |
 | 经验沉淀到 AGENTS.md | 下一轮开发自动带上，工作流越用越贴合项目 |
 
 ## 准备：安装 Codex 评审插件

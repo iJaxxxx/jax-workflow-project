@@ -159,7 +159,7 @@ argument-hint: <可选：PRD 路径或链接 / 模块名，例如 docs/prd/admin
 
 `/codex:review` 不可用时（插件没装、Codex 没登录、或者调用不了这个命令），**不要卡住**，改为派一个子代理做评审：只看 `git diff <base>..HEAD`，对照 `requirements.md` 和 `design.md`，按同样的 P0 / P1 / P2 分级列出问题。汇报时说明这次用的是哪种评审。
 
-**只修 P0 和 P1**，P2 记到本模块 `tasks.md` 的"遗留"一节。修完提交，**不做第二轮评审**。
+**只修 P0 和 P1**，P2 记到本模块 `tasks.md` 的"遗留"一节。修完跑一遍 `pnpm check-types` 和 `pnpm check` 就提交，直接进入冒烟测试。**修完不要再调用 `/codex:review`（也不要派子代理复查）**，每个模块的评审只在开发完成后跑这一次；冒烟测试阶段的修复同样不再评审。
 
 ### B3. 冒烟测试
 
