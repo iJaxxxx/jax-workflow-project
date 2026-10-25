@@ -2,18 +2,22 @@ import { Button } from "@jax-workflow-project/ui/components/button";
 import { Input } from "@jax-workflow-project/ui/components/input";
 import { Label } from "@jax-workflow-project/ui/components/label";
 import { useForm } from "@tanstack/react-form";
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
+import { safeRedirect } from "@/lib/safe-redirect";
 
 import Loader from "./loader";
 
 export default function SignUpForm({
 	onSwitchToSignIn,
+	redirectTo,
 }: {
 	onSwitchToSignIn: () => void;
+	redirectTo?: string | null;
 }) {
 	const router = useRouter();
 	const { isPending } = authClient.useSession();
@@ -36,7 +40,7 @@ export default function SignUpForm({
 						toast.error(error.error.message || error.error.statusText);
 					},
 					onSuccess: () => {
-						router.push("/dashboard");
+						router.push(safeRedirect(redirectTo) as Route);
 						toast.success("Sign up successful");
 					},
 				}
