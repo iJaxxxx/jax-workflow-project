@@ -83,6 +83,14 @@ export const userRouter = router({
 					await tx.session.deleteMany({ where: { userId } });
 				}
 
+				await tx.operationLog.create({
+					data: {
+						action: banned ? "USER_BAN" : "USER_UNBAN",
+						operatorId: ctx.session.user.id,
+						targetId: userId,
+					},
+				});
+
 				return updated;
 			});
 		}),
