@@ -1,6 +1,6 @@
 # 后台访问控制 · 任务
 
-- [ ] T1 User 加 `role` 字段，Better-Auth 声明 `additionalFields.role`（`input: false`），客户端 `auth-client.ts` 推断附加字段 | 依赖: 无 | 文件: packages/db/prisma/schema/auth.prisma, packages/auth/src/index.ts, apps/web/src/lib/auth-client.ts | 串行
+- [x] T1 User 加 `role` 字段，Better-Auth 声明 `additionalFields.role`（`input: false`），客户端 `auth-client.ts` 推断附加字段 | 依赖: 无 | 文件: packages/db/prisma/schema/auth.prisma, packages/auth/src/index.ts, apps/web/src/lib/auth-client.ts | 串行
 - [ ] T2 新增 `adminProcedure` | 依赖: T1 | 文件: packages/api/src/index.ts | 可并行
 - [ ] T3 登录 / 注册成功后回跳 `redirect` 参数，新增 `safeRedirect` | 依赖: 无 | 文件: apps/web/src/lib/safe-redirect.ts, apps/web/src/app/login/page.tsx, apps/web/src/components/sign-in-form.tsx, apps/web/src/components/sign-up-form.tsx | 可并行
 - [ ] T4 新增 `proxy.ts`，未登录访问 `/dashboard/*` 跳 `/login?redirect=…` | 依赖: 无 | 文件: apps/web/src/proxy.ts | 可并行

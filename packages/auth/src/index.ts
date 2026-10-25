@@ -29,6 +29,16 @@ export function createAuth(
 		plugins: [],
 		secret: env.BETTER_AUTH_SECRET,
 		trustedOrigins: [env.CORS_ORIGIN, ...desktopOrigins],
+		user: {
+			additionalFields: {
+				role: {
+					defaultValue: "user",
+					input: false,
+					required: false,
+					type: ["user", "admin"],
+				},
+			},
+		},
 	});
 }
 
