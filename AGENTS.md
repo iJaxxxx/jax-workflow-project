@@ -1,3 +1,53 @@
+# 项目说明
+
+## 技术栈与目录
+
+Better-T-Stack 生成的 pnpm + Turborepo monorepo。
+
+| 位置 | 作用 |
+|---|---|
+| `apps/web` | Next.js 前端，端口 3001。页面在 `src/app/`，组件在 `src/components/`，tRPC 客户端在 `src/utils/trpc.ts` |
+| `apps/server` | Hono 后端，端口 3000。挂载 `/api/auth/*`（Better-Auth）和 `/trpc/*` |
+| `packages/api` | tRPC。`src/index.ts` 定义 `publicProcedure` / `protectedProcedure`，路由写在 `src/routers/` |
+| `packages/db` | Prisma + PostgreSQL。schema 在 `prisma/schema/`（`auth.prisma` 是认证表，业务表写在 `schema.prisma` 或新建文件） |
+| `packages/auth` | Better-Auth 配置 |
+| `packages/ui` | 共享 UI 组件（shadcn） |
+| `apps/fumadocs` | 文档站 |
+
+## 约定
+
+- 新接口一律写成 tRPC procedure，放在 `packages/api/src/routers/`，在 `routers/index.ts` 注册；不要在 Hono 里直接加业务路由
+- 需要登录的接口用 `protectedProcedure`
+- 改了 Prisma schema 后执行 `pnpm db:push`
+- 环境变量在各包的 `.env`，字段定义见 `.env.schema`；不要把 `.env` 提交到 Git
+- 提交前 `pnpm check` 必须通过（Ultracite / Biome）
+- Next.js 版本较新，写前端前先看 `apps/web/AGENTS.md`
+- Skills 和 MCP 只装在项目里（`.agents/skills`、`.mcp.json`），不装全局
+
+## 常用命令
+
+- `pnpm dev`：同时启动 web 和 server
+- `pnpm db:push` / `pnpm db:studio`：同步表结构 / 打开数据库面板
+- `pnpm check` / `pnpm fix`：检查 / 自动修复代码风格
+- `pnpm check-types`：类型检查
+
+## 开发工作流
+
+需求开发走两个命令，流程见 `docs/workflow.md`：
+
+1. `/prd-split <PRD>`：把 `docs/prd/` 下的 PRD 拆成 `specs/NN-模块/{requirements,design,tasks}.md`
+2. `/dev-loop`：按 `tasks.md` 逐条开发 → 评审 → 冒烟测试 → 提交，支持断点续跑
+
+## 测试账号
+
+- （本地注册后填在这里，例如 `admin@test.local`）
+
+## 经验
+
+<!-- /dev-loop 每轮结束后把踩过的坑追加在这里 -->
+
+---
+
 # Ultracite Code Standards
 
 This project uses **Ultracite**, a zero-config preset that enforces strict code quality standards through automated formatting and linting.
