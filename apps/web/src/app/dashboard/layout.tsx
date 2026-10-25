@@ -1,22 +1,16 @@
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 
 import AdminHeader from "@/components/admin-header";
 import Forbidden from "@/components/forbidden";
-import { authClient } from "@/lib/auth-client";
+import { getSession } from "@/lib/admin-session";
 
 export default async function DashboardLayout({
 	children,
 }: {
 	children: ReactNode;
 }) {
-	const session = await authClient.getSession({
-		fetchOptions: {
-			headers: await headers(),
-			throw: true,
-		},
-	});
+	const session = await getSession();
 
 	if (!session?.user) {
 		redirect("/login");

@@ -9,3 +9,6 @@
 
 ## 遗留
 <!-- 评审中没修的 P2 记在这里 -->
+- P2 `admin-header.tsx` 退出失败时没有提示（signOut 缺少 onError toast）
+- P2 `proxy.ts` 转发 get-session 时没有回写响应里的 `Set-Cookie`，会话续期要靠后续客户端请求
+- P2 多处 `as Route` 强转（`/dashboard/users`、`/dashboard/logs` 尚未存在），模块 02/03 建好页面后去掉
