@@ -56,3 +56,8 @@ coverage
 .cache
 tmp
 temp
+
+# scripts/dev.sh 的 pid 和日志，Playwright 输出
+.dev/
+test-results/
+playwright-report/

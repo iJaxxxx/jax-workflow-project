@@ -24,6 +24,7 @@
       "!**/src-tauri",
       "!**/.nuxt",
       "!bts.jsonc",
+      "!**/.claude/settings.local.json",
       "!**/.expo",
       "!**/.wrangler",
       "!**/.alchemy",
