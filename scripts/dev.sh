@@ -1,5 +1,5 @@
 #!/bin/sh
-# 冒烟测试 / 验收用的开发环境。
+# 验收测试用的开发环境。
 #
 #   scripts/dev.sh up       检查数据库 → db:push → 后台启动 pnpm dev → 等 3000、3001 就绪
 #   scripts/dev.sh down     停掉 dev 服务
@@ -9,6 +9,7 @@
 set -eu
 
 cd "$(dirname "$0")/.."
+. scripts/lib/node.sh
 state_dir=.dev
 pid_file=$state_dir/dev.pid
 log_file=$state_dir/dev.log

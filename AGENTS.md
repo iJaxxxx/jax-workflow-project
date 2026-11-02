@@ -32,14 +32,15 @@ Better-T-Stack 生成的 pnpm + Turborepo monorepo。
 - `pnpm check` / `pnpm fix`：检查 / 自动修复代码风格
 - `pnpm check-types`：类型检查
 - `scripts/dev.sh up|down`：检查数据库后后台启动 / 停止 dev 服务
-- `scripts/acceptance.sh <模块>`：跑模块的 e2e 验收（`e2e/<模块>.spec.ts`），结果回写 AC 勾选
+- `scripts/acceptance.sh <模块> [--layer api|ui]`：跑模块的验收测试（`e2e/<模块>.api.spec.ts` / `.ui.spec.ts`）；不带 `--layer` 是总测试，结果回写 AC 勾选
+- `node scripts/module-plan.mjs <模块>`：输出模块未完成的 task（按契约 / 后端 / 前端 / 验证分组）
 
 ## 开发工作流
 
 需求开发统一走 `/jax-workflow [PRD 或模块名]`，流程见 `docs/workflow.md`。入口先判断 `specs/` 的状态：
 
 - specs 不存在或不完整 → 读 `docs/prd/` 下的 PRD，拆成 `specs/NN-模块/{requirements,design,tasks}.md`，写 `specs/status.md`。默认直接写 `状态: 已确认` 并继续开发；参数带 `--confirm` 或说明需要人工检查时，写 `状态: 待确认` 后停下来等人工确认
-- `specs/status.md` 是 `状态: 已确认` → 从第一个未勾选的 task 断点续跑：开发 → 一轮评审（task `R`）→ e2e 验收 → 提交
+- `specs/status.md` 是 `状态: 已确认` → 从第一个未勾选的 task 断点续跑：契约 → 前后端并行开发 → Codex 评审、后端测试、前端测试并行 → 串行总测试 → 提交（并行部分由 Workflow `jax-module` 编排）
 
 代码评审只用 Codex：`scripts/codex-review.sh <模块起点>`（调用 Codex CLI，用本机已登录的 ChatGPT 账号，说明见 `docs/workflow.md`）。Codex 不可用时停下来报告，不用 Claude 子代理代替。拆完需求后用 `scripts/codex-spec-review.sh <PRD>` 让 Codex 审一次 specs。
 

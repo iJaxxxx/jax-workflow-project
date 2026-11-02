@@ -4,7 +4,7 @@
 新增或修改的 Prisma model（写出 schema 片段，写明放在 packages/db/prisma/schema/ 的哪个文件）。
 
 ## 接口（tRPC，packages/api/src/routers/）
-| procedure | query / mutation | 入参（zod） | 出参 | public / protected / 仅管理员 |
+| procedure | query / mutation | 入参（zod） | 出参（zod，契约里写成 `.output()`） | public / protected / 仅管理员 |
 |---|---|---|---|---|
 
 ## 页面（apps/web/src/app/）

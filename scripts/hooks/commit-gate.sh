@@ -3,6 +3,10 @@
 # 退出码 2 = 阻止这次工具调用，stderr 会回给 Claude。只回关键报错，不回完整日志。
 set -u
 
+if ! command -v jq >/dev/null 2>&1; then
+	echo "提交门禁需要 jq：brew install jq" >&2
+	exit 2
+fi
 command=$(jq -r '.tool_input.command // ""')
 # 只认真正执行的 git commit（命令开头或 && ; | 之后），不管字符串里提到的
 if ! printf '%s\n' "$command" | grep -q -E '(^|[;&|(])[[:space:]]*git[[:space:]]+(-C[[:space:]]+[^[:space:]]+[[:space:]]+)?commit([[:space:]]|$)'; then
@@ -10,6 +14,7 @@ if ! printf '%s\n' "$command" | grep -q -E '(^|[;&|(])[[:space:]]*git[[:space:]]
 fi
 
 cd "$(git rev-parse --show-toplevel)" || exit 0
+. scripts/lib/node.sh
 
 run_gate() {
 	name=$1

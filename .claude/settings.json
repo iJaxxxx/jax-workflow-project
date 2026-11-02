@@ -10,6 +10,7 @@
       "Bash(scripts/codex-spec-review.sh:*)",
       "Bash(scripts/dev.sh:*)",
       "Bash(scripts/acceptance.sh:*)",
+      "Bash(node scripts/module-plan.mjs:*)",
       "Bash(git status:*)",
       "Bash(git log:*)",
       "Bash(git diff:*)",
@@ -24,7 +25,12 @@
       "Bash(npm i -g:*)",
       "Bash(pnpm add -g:*)",
       "Edit(**/.env)",
-      "Write(**/.env)"
+      "Write(**/.env)",
+      "Bash(git stash:*)",
+      "Bash(git restore:*)",
+      "Bash(git checkout:*)",
+      "Bash(git reset:*)",
+      "Bash(git clean:*)"
     ]
   },
   "hooks": {
@@ -44,7 +50,7 @@
       {
         "hooks": [
           {
-            "command": "pnpm exec ultracite fix --skip=correctness/noUnusedImports --hook",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/hooks/format-edited.sh",
             "type": "command"
           }
         ],
