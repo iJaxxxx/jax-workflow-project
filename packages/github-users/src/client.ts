@@ -1,4 +1,10 @@
-import type { FavoriteUser, GithubProfile } from "./schema";
+import {
+	type FavoriteUser,
+	type GithubProfile,
+	parseFavoriteUser,
+	parseGithubProfile,
+	usernameSchema,
+} from "./schema";
 
 /** 已部署的 AWS HTTP API（API Gateway `jax-gh-api`） */
 export const GITHUB_USERS_API_URL =
@@ -14,8 +20,8 @@ export const REQUEST_TIMEOUT_MS = 35_000;
 export class GithubUsersApiError extends Error {
 	readonly status: number;
 
-	constructor(status: number, message: string) {
-		super(message);
+	constructor(status: number, message: string, options?: { cause?: unknown }) {
+		super(message, options);
 		this.name = "GithubUsersApiError";
 		this.status = status;
 	}
@@ -34,15 +40,146 @@ export interface GithubUsersClient {
 	update: (githubId: number, note: string | null) => Promise<FavoriteUser>;
 }
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+	typeof value === "object" && value !== null && !Array.isArray(value);
+
+const readErrorText = (body: unknown, fallback: string): string => {
+	if (isRecord(body) && typeof body.error === "string") {
+		return body.error;
+	}
+	return fallback;
+};
+
+/** 兼容后端把记录包在 `user` 字段里返回 */
+const unwrapUser = (body: unknown): unknown =>
+	isRecord(body) && isRecord(body.user) ? body.user : body;
+
+const toProfileBody = (profile: GithubProfile) => ({
+	avatar_url: profile.avatarUrl,
+	bio: profile.bio,
+	company: profile.company,
+	followers: profile.followers,
+	github_id: profile.githubId,
+	location: profile.location,
+	login: profile.login,
+	name: profile.name,
+	public_repos: profile.publicRepos,
+});
+
+const parseDeletedId = (body: unknown, fallback: number): number => {
+	const deleted = isRecord(body) ? body.deleted : undefined;
+	const candidate = isRecord(deleted) ? deleted.github_id : deleted;
+	const id = Number(candidate);
+	return Number.isInteger(id) && id > 0 ? id : fallback;
+};
+
+const TRAILING_SLASHES = /\/+$/;
+
+const parseBody = (text: string): unknown => {
+	if (!text) {
+		return null;
+	}
+	try {
+		return JSON.parse(text);
+	} catch {
+		return text;
+	}
+};
+
+const toTransportError = (
+	error: unknown,
+	timedOut: boolean
+): GithubUsersApiError => {
+	if (error instanceof GithubUsersApiError) {
+		return error;
+	}
+	const detail = error instanceof Error ? error.message : String(error);
+	return new GithubUsersApiError(
+		0,
+		timedOut ? "request timed out" : `network error: ${detail}`,
+		{ cause: error }
+	);
+};
+
+const readResponse = async (response: Response): Promise<unknown> => {
+	const body = parseBody(await response.text());
+	if (!response.ok) {
+		throw new GithubUsersApiError(
+			response.status,
+			readErrorText(body, `HTTP ${response.status}`)
+		);
+	}
+	return body;
+};
+
 export const createGithubUsersClient = (
-	_baseUrl: string = GITHUB_USERS_API_URL
+	baseUrl: string = GITHUB_USERS_API_URL
 ): GithubUsersClient => {
-	const notImplemented = () => Promise.reject(new Error("NOT_IMPLEMENTED"));
+	const root = baseUrl.replace(TRAILING_SLASHES, "");
+
+	/** 超时 35 秒；超时、网络错误（含 CORS 拦截）统一抛 status 0 */
+	const request = async (
+		path: string,
+		init?: { body: unknown; method: "POST" }
+	): Promise<unknown> => {
+		const controller = new AbortController();
+		const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+		try {
+			const response = await fetch(`${root}${path}`, {
+				method: init?.method ?? "GET",
+				signal: controller.signal,
+				...(init
+					? {
+							body: JSON.stringify(init.body),
+							headers: { "content-type": "application/json" },
+						}
+					: {}),
+			});
+			return await readResponse(response);
+		} catch (error) {
+			throw toTransportError(error, controller.signal.aborted);
+		} finally {
+			clearTimeout(timer);
+		}
+	};
+
 	return {
-		create: notImplemented,
-		delete: notImplemented,
-		list: notImplemented,
-		search: notImplemented,
-		update: notImplemented,
+		create: async (profile) =>
+			parseFavoriteUser(
+				unwrapUser(
+					await request("/users/create", {
+						body: toProfileBody(profile),
+						method: "POST",
+					})
+				)
+			),
+		delete: async (githubId) => {
+			const body = await request("/users/delete", {
+				body: { github_id: githubId },
+				method: "POST",
+			});
+			return { githubId: parseDeletedId(body, githubId) };
+		},
+		list: async () => {
+			const body = await request("/users/list");
+			const users =
+				isRecord(body) && Array.isArray(body.users) ? body.users : [];
+			return users.map((user) => parseFavoriteUser(user));
+		},
+		search: async (username) => {
+			const valid = usernameSchema.parse(username);
+			return parseGithubProfile(
+				await request(`/github?username=${encodeURIComponent(valid)}`)
+			);
+		},
+		update: async (githubId, note) =>
+			parseFavoriteUser(
+				unwrapUser(
+					await request("/users/update", {
+						body: { github_id: githubId, note },
+						method: "POST",
+					})
+				)
+			),
 	};
 };

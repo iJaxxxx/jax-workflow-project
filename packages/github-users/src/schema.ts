@@ -34,15 +34,53 @@ export const favoriteUserSchema = githubProfileSchema.extend({
 });
 export type FavoriteUser = z.infer<typeof favoriteUserSchema>;
 
+/** AWS 原始 GitHub 用户（snake_case），解析后转成 camelCase */
+const rawGithubProfileSchema = z.object({
+	avatar_url: z.string().nullish(),
+	bio: z.string().nullish(),
+	company: z.string().nullish(),
+	followers: z.coerce.number().int().nullish(),
+	github_id: z.coerce.number().int().positive(),
+	location: z.string().nullish(),
+	login: z.string(),
+	name: z.string().nullish(),
+	public_repos: z.coerce.number().int().nullish(),
+});
+
+const rawFavoriteUserSchema = rawGithubProfileSchema.extend({
+	created_at: z.string(),
+	note: z.string().nullish(),
+	updated_at: z.string(),
+});
+
+const toProfile = (
+	raw: z.infer<typeof rawGithubProfileSchema>
+): GithubProfile => ({
+	avatarUrl: raw.avatar_url ?? null,
+	bio: raw.bio ?? null,
+	company: raw.company ?? null,
+	followers: raw.followers ?? null,
+	githubId: raw.github_id,
+	location: raw.location ?? null,
+	login: raw.login,
+	name: raw.name ?? null,
+	publicRepos: raw.public_repos ?? null,
+});
+
 /**
  * 把 AWS 返回的 GitHub 用户（snake_case）转成 GithubProfile。
  * github_id 兼容字符串（后端 bigint 可能以字符串返回）。
  */
-export const parseGithubProfile = (_raw: unknown): GithubProfile => {
-	throw new Error("NOT_IMPLEMENTED");
-};
+export const parseGithubProfile = (raw: unknown): GithubProfile =>
+	toProfile(rawGithubProfileSchema.parse(raw));
 
 /** 把 AWS 返回的收藏记录（snake_case）转成 FavoriteUser */
-export const parseFavoriteUser = (_raw: unknown): FavoriteUser => {
-	throw new Error("NOT_IMPLEMENTED");
+export const parseFavoriteUser = (raw: unknown): FavoriteUser => {
+	const user = rawFavoriteUserSchema.parse(raw);
+	return {
+		...toProfile(user),
+		createdAt: user.created_at,
+		note: user.note ?? null,
+		updatedAt: user.updated_at,
+	};
 };
