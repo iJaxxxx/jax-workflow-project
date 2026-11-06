@@ -77,6 +77,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # web 的类型检查会通过 tRPC 类型引用到 Prisma Client，构建前必须先生成
+      - name: Generate Prisma Client
+        run: pnpm db:generate
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+
       # NEXT_PUBLIC_SERVER_URL 在构建时写进前端代码，取自仓库的 Actions Variables
       - name: Build web (static export)
         run: pnpm -F web build
@@ -84,11 +90,10 @@ jobs:
           NODE_ENV: production
           NEXT_PUBLIC_SERVER_URL: ${{ vars.NEXT_PUBLIC_SERVER_URL }}
 
-      # 项目名和上传目录取自 apps/web/wrangler.jsonc；项目不存在时先创建（直传类型）
+      # 项目名和上传目录取自 apps/web/wrangler.jsonc。
+      # 第一次运行时先创建直传类型的项目；已存在时 create 会报错，忽略即可（凭证有问题时下一步 deploy 会报出来）
       - name: Deploy to Cloudflare Pages
         working-directory: apps/web
         run: |
-          if ! pnpm exec wrangler pages project list | grep -q "jax-workflow-web "; then
-            pnpm exec wrangler pages project create jax-workflow-web --production-branch master
-          fi
+          pnpm exec wrangler pages project create jax-workflow-web --production-branch master || true
           pnpm exec wrangler pages deploy --branch master
