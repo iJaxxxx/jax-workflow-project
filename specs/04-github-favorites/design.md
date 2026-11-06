@@ -20,7 +20,7 @@
   - 请求超时 35 秒（数据库唤醒最长约 25 秒）
   - 非 2xx 抛 `GithubUsersApiError`，带 `status`（HTTP 状态码）和后端的 `error` 文本；超时或网络错误时 `status` 为 0
   - 写请求只带 `content-type: application/json` 请求头，不带 cookie（`credentials` 用默认值），以符合 CORS 配置
-- `src/index.ts`：统一导出
+- 导出方式：和其他 workspace 包一样用子路径导出（`"./*": "./src/*.ts"`），不建 barrel 文件（Biome `noBarrelFile` 规则）。使用时 `import { … } from "@jax-workflow-project/github-users/schema"` 或 `.../client`
 
 ## 页面（apps/web/src/app/）
 | 路由 | 作用 | 调用 |
@@ -31,7 +31,7 @@
 - 头部导航（`apps/web/src/components/header.tsx`）加一个指向 `/github` 的入口
 
 ## 涉及的文件
-- 新建：`packages/github-users/package.json`、`packages/github-users/tsconfig.json`、`packages/github-users/src/schema.ts`、`packages/github-users/src/client.ts`、`packages/github-users/src/index.ts`
+- 新建：`packages/github-users/package.json`、`packages/github-users/tsconfig.json`、`packages/github-users/src/schema.ts`、`packages/github-users/src/client.ts`
 - 新建：`apps/web/src/app/github/use-favorites.ts`、`apps/web/src/app/github/page.tsx`、`apps/web/src/app/github/search-panel.tsx`、`apps/web/src/app/github/favorite-list.tsx`
 - 修改：`apps/web/package.json`、`apps/web/src/components/header.tsx`、`pnpm-lock.yaml`
 
