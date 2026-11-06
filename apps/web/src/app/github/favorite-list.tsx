@@ -273,14 +273,19 @@ function DeleteButton({
 		if (remove.isPending) {
 			return;
 		}
-		remove.mutate(user.githubId, {
-			onSuccess: ({ alreadyDeleted }) => {
+		// 成功后这一行会从缓存里移除、组件随之卸载，而 TanStack Query 不会对已卸载组件执行
+		// mutate 的单次回调；用 mutateAsync 的 Promise 结果来通知父组件（父组件仍在页面上）
+		remove
+			.mutateAsync(user.githubId)
+			.then(({ alreadyDeleted }) => {
 				setOpen(false);
 				if (alreadyDeleted) {
 					onAlreadyDeleted(user.login);
 				}
-			},
-		});
+			})
+			.catch(() => {
+				// 错误由 remove.error 在弹窗里显示
+			});
 	};
 
 	return (
