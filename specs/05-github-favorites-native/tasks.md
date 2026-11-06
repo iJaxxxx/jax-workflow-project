@@ -1,6 +1,6 @@
 # GitHub 用户收藏（Android / iOS） · 任务
 
-基线提交: <!-- 开发这个模块之前的 HEAD，进入 B 阶段时写入 -->
+基线提交: f21d8ce
 
 - [ ] T1 在 `apps/native` 创建 Expo + TypeScript 应用骨架：`start` / `check-types` / `export:ios` / `export:android` 脚本，Metro 按 monorepo 配置能解析 workspace 包，依赖共享包 `@jax-workflow-project/github-users` | 依赖: 无 | 文件: apps/native/package.json, apps/native/app.json, apps/native/tsconfig.json, apps/native/metro.config.js, apps/native/index.ts, apps/native/App.tsx, apps/native/.gitignore, pnpm-lock.yaml | 层: 前端
 - [ ] T2 数据层：共享客户端实例和 react-query hooks（查询、列表、添加、修改备注、删除，写操作成功后刷新列表），App 根部挂 QueryClientProvider | 依赖: T1 | 文件: apps/native/src/api.ts, apps/native/App.tsx | 层: 前端
