@@ -1,11 +1,11 @@
 #!/bin/sh
 # 验收测试用的开发环境。
 #
-#   scripts/dev.sh up       检查数据库 → db:push → 后台启动 pnpm dev → 等 3000、3001 就绪
+#   scripts/dev.sh up       后台启动 pnpm dev → 等 3000、3001 就绪
 #   scripts/dev.sh down     停掉 dev 服务
 #   scripts/dev.sh status   看服务是否在跑
 #
-# 日志在 .dev/dev.log。数据库连不上就退出，不改 .env。
+# 日志在 .dev/dev.log。不检查数据库、不执行 db:push（改了 Prisma schema 的契约 task 自己执行 pnpm db:push）。
 set -eu
 
 cd "$(dirname "$0")/.."
@@ -20,31 +20,10 @@ port_open() {
 	nc -z localhost "$1" >/dev/null 2>&1
 }
 
-check_database() {
-	url=$(sed -n 's/^DATABASE_URL=//p' apps/server/.env 2>/dev/null | tr -d '"' | head -1)
-	if [ -z "$url" ]; then
-		echo "apps/server/.env 里没有 DATABASE_URL" >&2
-		exit 2
-	fi
-	host_port=$(printf '%s' "$url" | sed -E 's#^[^@]*@([^/?]+).*#\1#')
-	host=${host_port%%:*}
-	port=${host_port##*:}
-	[ "$port" = "$host_port" ] && port=5432
-	if ! nc -z "$host" "$port" >/dev/null 2>&1; then
-		echo "数据库连不上：${host}:${port}。先把 PostgreSQL 启动起来" >&2
-		exit 2
-	fi
-}
-
 up() {
 	if [ -f "$pid_file" ] && kill -0 "$(cat "$pid_file")" 2>/dev/null; then
 		echo "dev 服务已经在跑（pid $(cat "$pid_file")）"
 		return
-	fi
-	check_database
-	if ! push_output=$(pnpm db:push 2>&1); then
-		printf 'pnpm db:push 失败：\n%s\n' "$(printf '%s\n' "$push_output" | tail -20)" >&2
-		exit 2
 	fi
 	mkdir -p "$state_dir"
 	nohup pnpm dev >"$log_file" 2>&1 &

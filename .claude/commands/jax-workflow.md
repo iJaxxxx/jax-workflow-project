@@ -87,7 +87,7 @@ argument-hint: <可选：PRD 路径或链接 / 模块名，例如 docs/prd/admin
 
 ### B2. 并行开发 + 并行验证（Workflow）
 
-1. `scripts/dev.sh up`（测试要用；开发中改的代码会热更新）。数据库连不上就停下来告诉我，不要改 `.env`
+1. `scripts/dev.sh up`（测试要用；开发中改的代码会热更新）。它不检查数据库；起不来就停下来告诉我，不要改 `.env`
 2. 重新执行 `node scripts/module-plan.mjs <模块>`，把输出原样作为 `args` 调用 Workflow 工具：`name: "jax-module"`。它会：
    - 后端、前端是两条**流水线**（`pipeline()`），同时跑，每条都是"开发 → 测试"：
      - 开发：本层 task 按依赖分批，同一批里改不同文件的 task 用 `parallel()` 同时派 agent

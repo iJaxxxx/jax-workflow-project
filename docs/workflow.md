@@ -13,7 +13,7 @@
 | `scripts/module-plan.mjs` | 解析 `tasks.md`：还没做的 task 按层（契约 / 后端 / 前端 / 验证）分组，带依赖和文件，作为 Workflow 的输入 |
 | `.claude/workflows/jax-module.js`（Workflow 脚本） | 后端、前端两条 `pipeline()` 同时跑，每条"开发 → 测试"，开发按批 `parallel()`；Codex 评审和流水线并行，等两边开发完开始 |
 | `scripts/acceptance.sh` | AC 有没有写验证方式、测试是否齐全和通过；`--layer api/ui` 分层跑（可同时跑），不带参数是串行总测试，通过的 AC 由脚本勾选 |
-| `scripts/dev.sh` | 检查数据库 → `db:push` → 后台启动 dev → 等端口就绪 |
+| `scripts/dev.sh` | 后台启动 dev → 等端口就绪（不检查数据库、不执行 `db:push`） |
 | `scripts/codex-review.sh`、`scripts/codex-spec-review.sh` | Codex 评审代码、审 specs |
 
 ## 流程图

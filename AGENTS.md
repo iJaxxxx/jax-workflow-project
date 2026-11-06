@@ -31,7 +31,7 @@ Better-T-Stack 生成的 pnpm + Turborepo monorepo。
 - `pnpm db:push` / `pnpm db:studio`：同步表结构 / 打开数据库面板
 - `pnpm check` / `pnpm fix`：检查 / 自动修复代码风格
 - `pnpm check-types`：类型检查
-- `scripts/dev.sh up|down`：检查数据库后后台启动 / 停止 dev 服务
+- `scripts/dev.sh up|down`：后台启动 / 停止 dev 服务（不检查数据库）
 - `scripts/acceptance.sh <模块> [--layer api|ui]`：跑模块的验收测试（`e2e/<模块>.api.spec.ts` / `.ui.spec.ts`）；不带 `--layer` 是总测试，结果回写 AC 勾选
 - `node scripts/module-plan.mjs <模块>`：输出模块未完成的 task（按契约 / 后端 / 前端 / 验证分组）
 
