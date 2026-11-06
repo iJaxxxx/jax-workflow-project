@@ -7,8 +7,6 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 
-import { getAdminSession } from "@/lib/admin-session";
-
 const ADMIN_ENTRIES: { description: string; href: Route; title: string }[] = [
 	{
 		description: "查看、搜索和管理系统中的用户",
@@ -22,11 +20,7 @@ const ADMIN_ENTRIES: { description: string; href: Route; title: string }[] = [
 	},
 ];
 
-export default async function DashboardPage() {
-	if (!(await getAdminSession())) {
-		return null;
-	}
-
+export default function DashboardPage() {
 	return (
 		<div className="flex flex-col gap-6">
 			<div>

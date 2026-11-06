@@ -1,15 +1,10 @@
 import { Suspense } from "react";
 
 import Loader from "@/components/loader";
-import { getAdminSession } from "@/lib/admin-session";
 
 import LogsTable from "./logs-table";
 
-export default async function LogsPage() {
-	if (!(await getAdminSession())) {
-		return null;
-	}
-
+export default function LogsPage() {
 	return (
 		<div className="flex flex-col gap-6">
 			<div>

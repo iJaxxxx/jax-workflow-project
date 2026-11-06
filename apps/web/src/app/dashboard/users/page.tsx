@@ -1,12 +1,15 @@
+"use client";
+
 import { Suspense } from "react";
 
 import Loader from "@/components/loader";
-import { getAdminSession } from "@/lib/admin-session";
+import { authClient } from "@/lib/auth-client";
 
 import UsersTable from "./users-table";
 
-export default async function UsersPage() {
-	const session = await getAdminSession();
+export default function UsersPage() {
+	// The dashboard layout only renders children once an admin session is loaded.
+	const { data: session } = authClient.useSession();
 	if (!session) {
 		return null;
 	}
