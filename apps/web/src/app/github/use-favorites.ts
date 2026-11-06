@@ -133,11 +133,14 @@ export function useDeleteFavorite() {
 				throw error;
 			}
 		},
-		onSuccess: async ({ githubId }) => {
+		onSuccess: async ({ alreadyDeleted, githubId }) => {
 			queryClient.setQueryData<FavoriteUser[]>(favoritesQueryKey, (current) =>
 				current?.filter((u) => u.githubId !== githubId)
 			);
-			await queryClient.invalidateQueries({ queryKey: favoritesQueryKey });
+			// 404 说明服务端已经没有这个人，本地移除即可；再刷新列表可能把旧数据带回来
+			if (!alreadyDeleted) {
+				await queryClient.invalidateQueries({ queryKey: favoritesQueryKey });
+			}
 		},
 	});
 }
