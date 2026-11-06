@@ -14,6 +14,9 @@
 - Web：Next.js（现有 `apps/web`）
 - Android / iOS：React Native 双端
 
+## 调用方式
+Web 和 App 都直接调用下面的 AWS 接口，本仓库不做转发。Web 在浏览器里跨域请求，需要在 API Gateway 上为 `http://localhost:3001` 配置 CORS。
+
 ## 已有后端（AWS HTTP API，不在本仓库）
 Base URL：`https://lsmygs2ye8.execute-api.ap-southeast-2.amazonaws.com`（公开、暂无鉴权、暂未配置 CORS）
 
