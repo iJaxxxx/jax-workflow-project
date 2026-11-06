@@ -7,8 +7,8 @@
 - [x] T3 收藏页和查询区：输入框、"查询"按钮、结果卡片、"添加" / "已添加"、错误提示、键盘处理 | 依赖: T2 | 文件: apps/native/src/favorites-screen.tsx, apps/native/src/search-panel.tsx, apps/native/App.tsx | 层: 前端
 - [x] T4 收藏列表：展示、下拉刷新、编辑备注、系统弹窗确认删除、空状态、加载和错误状态 | 依赖: T3 | 文件: apps/native/src/favorite-list.tsx, apps/native/src/favorites-screen.tsx | 层: 前端
 - [x] R 代码评审：Codex 一轮，修 P0/P1，P2 记到遗留 | 依赖: T4 | 层: 评审
-- [ ] TA 后端测试：e2e/05-github-favorites-native.api.spec.ts 覆盖所有"验证: api"的 AC（AC1：执行 export:ios 和 export:android 都成功） | 依赖: T4 | 层: 后端测试
-- [ ] TU 前端测试：本模块没有"验证: ui"的 AC（原生界面由人工在模拟器验证），确认 scripts/acceptance.sh 05-github-favorites-native --layer ui 通过即可 | 依赖: T4 | 层: 前端测试
+- [x] TA 后端测试：e2e/05-github-favorites-native.api.spec.ts 覆盖所有"验证: api"的 AC（AC1：执行 export:ios 和 export:android 都成功） | 依赖: T4 | 层: 后端测试
+- [x] TU 前端测试：本模块没有"验证: ui"的 AC（原生界面由人工在模拟器验证），确认 scripts/acceptance.sh 05-github-favorites-native --layer ui 通过即可 | 依赖: T4 | 层: 前端测试
 - [ ] TZ 总测试：check-types、check、scripts/acceptance.sh 05-github-favorites-native 全部通过；人工 AC 在 iOS 模拟器逐条验证 | 依赖: R, TA, TU | 层: 总测试
 
 ## 遗留
