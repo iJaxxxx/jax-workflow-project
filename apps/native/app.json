@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "GitHub 收藏",
+    "slug": "jax-github-favorites",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "predictiveBackGestureEnabled": false
+    }
+  }
+}

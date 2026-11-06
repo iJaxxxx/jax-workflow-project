@@ -1,0 +1,26 @@
+{
+  "name": "native",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "android": "expo start --android",
+    "check-types": "tsc --noEmit",
+    "export:android": "expo export --platform android --output-dir dist/android",
+    "export:ios": "expo export --platform ios --output-dir dist/ios",
+    "ios": "expo start --ios",
+    "start": "expo start"
+  },
+  "dependencies": {
+    "@jax-workflow-project/github-users": "workspace:*",
+    "@tanstack/react-query": "^5.104.2",
+    "expo": "~58.0.23",
+    "expo-status-bar": "~58.0.4",
+    "react": "19.3.0",
+    "react-native": "0.88.1"
+  },
+  "devDependencies": {
+    "@types/react": "~19.3.0",
+    "typescript": "~6.0.3"
+  }
+}
