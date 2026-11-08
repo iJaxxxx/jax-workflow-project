@@ -18,7 +18,7 @@
 Web 和 App 都直接调用下面的 AWS 接口，本仓库不做转发。Web 在浏览器里跨域请求，需要在 API Gateway 上为 `http://localhost:3001` 配置 CORS。
 
 ## 已有后端（AWS HTTP API，不在本仓库）
-Base URL：`https://lsmygs2ye8.execute-api.ap-southeast-2.amazonaws.com`（公开、暂无鉴权、暂未配置 CORS）
+Base URL：`https://92ctd9lco9.execute-api.ap-southeast-2.amazonaws.com/prod`（REST API `jax-gh-rest`，挂了 WAF `jax-gh-waf`；公开、暂无鉴权；CORS 由 Lambda `go-caller` 按 `ALLOWED_ORIGINS` 返回）
 
 | 方法 | 路径 | 入参 | 返回 |
 |---|---|---|---|

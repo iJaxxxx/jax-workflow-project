@@ -8,7 +8,8 @@ import { expect, type Page, type Route, test } from "@playwright/test";
 // AWS 数据库从暂停中唤醒最长约 25 秒，默认 30 秒超时不够
 test.describe.configure({ timeout: 180_000 });
 
-const AWS_URL = "https://lsmygs2ye8.execute-api.ap-southeast-2.amazonaws.com";
+const AWS_URL =
+	"https://92ctd9lco9.execute-api.ap-southeast-2.amazonaws.com/prod";
 const AWS_PATTERN = `${AWS_URL}/**`;
 const REAL_LOGIN = "octocat";
 const SLOW = { timeout: 60_000 };

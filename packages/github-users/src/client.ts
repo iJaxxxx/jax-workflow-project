@@ -6,9 +6,9 @@ import {
 	usernameSchema,
 } from "./schema";
 
-/** 已部署的 AWS HTTP API（API Gateway `jax-gh-api`） */
+/** 已部署的 AWS REST API（API Gateway `jax-gh-rest`，`prod` 阶段，挂了 WAF `jax-gh-waf`） */
 export const GITHUB_USERS_API_URL =
-	"https://lsmygs2ye8.execute-api.ap-southeast-2.amazonaws.com";
+	"https://92ctd9lco9.execute-api.ap-southeast-2.amazonaws.com/prod";
 
 /** 请求超时：数据库从暂停中唤醒最长约 25 秒 */
 export const REQUEST_TIMEOUT_MS = 35_000;
