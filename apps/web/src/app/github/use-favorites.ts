@@ -12,8 +12,13 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import z from "zod";
 
-/** 浏览器直连 AWS 的共享客户端 */
-export const githubUsersClient = createGithubUsersClient();
+/**
+ * 浏览器直连 AWS 的共享客户端。
+ * 构建时设置了 NEXT_PUBLIC_GITHUB_USERS_API_URL（PR 预览环境）就用它，否则用线上地址。
+ */
+export const githubUsersClient = createGithubUsersClient(
+	process.env.NEXT_PUBLIC_GITHUB_USERS_API_URL || undefined
+);
 
 export const favoritesQueryKey = ["github-favorites", "list"] as const;
 
