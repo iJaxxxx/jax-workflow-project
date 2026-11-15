@@ -39,6 +39,7 @@
       "!**/.agents",
       "!**/prisma/generated",
       "!**/*.svg",
+      "!docs/**/*.html",
       "!apps/*/src/env.ts",
       "!packages/*/src/env.ts"
     ]

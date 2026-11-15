@@ -1,0 +1,22 @@
+{
+  "name": "agent",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "chat": "tsx src/chat.ts",
+    "check-types": "tsc --noEmit",
+    "playground": "mastra dev"
+  },
+  "dependencies": {
+    "@mastra/core": "^1.83.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@jax-workflow-project/config": "workspace:*",
+    "@types/node": "catalog:",
+    "mastra": "^1.39.0",
+    "tsx": "^4.20.0",
+    "typescript": "catalog:"
+  }
+}
