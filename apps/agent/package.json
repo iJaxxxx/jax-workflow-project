@@ -6,9 +6,15 @@
   "scripts": {
     "chat": "tsx src/chat.ts",
     "check-types": "tsc --noEmit",
+    "diagnose": "tsx src/diagnose.ts",
+    "ops": "tsx src/ops.ts",
     "playground": "mastra dev"
   },
   "dependencies": {
+    "@aws-sdk/client-cloudwatch": "^3.1169.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.1169.0",
+    "@aws-sdk/client-ecs": "^3.1169.0",
+    "@aws-sdk/client-lambda": "^3.1169.0",
     "@mastra/core": "^1.83.0",
     "zod": "catalog:"
   },
