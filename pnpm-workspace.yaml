@@ -8,6 +8,12 @@ allowBuilds:
   "@prisma/client": true
   "@prisma/engines": true
   prisma: true
+# LangGraph Studio 的本地服务（apps/agent-langchain 的 devDependency @langchain/langgraph-cli）声明的 peer 偏旧：
+# 要 TypeScript 5、@hono/node-server 1.x，本仓库是 TypeScript 6、node-server 2.x。实测 langgraphjs dev 能正常启动和运行，只放行这两条
+peerDependencyRules:
+  allowedVersions:
+    "@langchain/langgraph-api>typescript": "6"
+    "@hono/node-ws>@hono/node-server": "2"
 overrides:
   "@next/env": npm:@varlock/nextjs-integration@1.2.2
 catalog:

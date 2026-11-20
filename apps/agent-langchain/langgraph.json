@@ -1,0 +1,7 @@
+{
+  "node_version": "22",
+  "graphs": {
+    "ops_agent": "./src/studio.ts:opsAgent",
+    "ops_diagnosis": "./src/studio.ts:opsDiagnosis"
+  }
+}

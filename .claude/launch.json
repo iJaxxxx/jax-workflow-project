@@ -6,6 +6,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "agent", "playground"],
       "port": 4111
+    },
+    {
+      "name": "langgraph-studio",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "agent-langchain", "studio"],
+      "port": 2024
     }
   ]
 }

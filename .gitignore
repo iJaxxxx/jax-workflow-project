@@ -66,3 +66,17 @@ playwright-report/
 apps/agent/mastra.db
 apps/agent/mastra.db-*
 apps/agent/.mastra
+
+# 运维 wiki 里 Agent 提交的修改建议，等人工审核，不进 Git
+apps/agent/wiki/_proposals/*
+!apps/agent/wiki/_proposals/.gitkeep
+
+# RAG 本地向量索引（packages/rag ingest 生成）
+packages/rag/.index/
+
+# Agent 评测结果
+apps/agent/eval-results/
+
+# LangChain 版运维助手：对话 checkpoint（JSON 文件）和 langgraph dev 的本地数据
+apps/agent-langchain/.data/
+apps/agent-langchain/.langgraph_api/
