@@ -1,7 +1,9 @@
-// 排障 workflow：用代码固定「五项证据全部查到」，模型只负责最后的汇总。
+// 排障 workflow：用代码固定「七项证据全部查到」，模型只负责最后的汇总。
+// 证据沿请求链路从外到内：API Gateway 入口 → Lambda → ECS 上的 Go 服务。
 // 对比 ops-agent：那边由模型自己决定调哪些工具，小模型经常查两项就下结论。
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
+import { getApiGatewayMetrics } from "../tools/aws/get-api-gateway-metrics";
 import { getEcsServiceStatus } from "../tools/aws/get-ecs-service-status";
 import { getLambdaDeployment } from "../tools/aws/get-lambda-deployment";
 import { getLambdaMetrics } from "../tools/aws/get-lambda-metrics";
@@ -54,6 +56,13 @@ const alarms = evidenceStep("alarms", () =>
 	listAlarms.execute?.({ onlyFiring: false }, {})
 );
 
+const apiMetrics = evidenceStep("apiMetrics", ({ minutes }) =>
+	getApiGatewayMetrics.execute?.(
+		{ apiName: defaults.apiName, minutes, stage: defaults.apiStage },
+		{}
+	)
+);
+
 const metrics = evidenceStep("metrics", ({ minutes }) =>
 	getLambdaMetrics.execute?.(
 		{ functionName: defaults.lambdaFunction, minutes },
@@ -61,9 +70,24 @@ const metrics = evidenceStep("metrics", ({ minutes }) =>
 	)
 );
 
-const logs = evidenceStep("logs", ({ minutes }) =>
+// go-caller 的日志：转发失败（Lambda 抛错）带 ERROR；后端返回 5xx 时它记一条 "level":"warn"
+const logs = evidenceStep("logs", async ({ minutes }) => {
+	const search = (keyword: string) =>
+		searchLogs.execute?.(
+			{ keyword, limit: 10, logGroup: defaults.logGroup, minutes },
+			{}
+		);
+	const [errors, upstream5xx] = await Promise.all([
+		search("ERROR"),
+		search("warn"),
+	]);
+	return { errors, upstream5xx };
+});
+
+// Go 服务自己的报错（slog JSON 日志里是 "level":"ERROR"），这里才看得到真正的错误原因
+const ecsLogs = evidenceStep("ecsLogs", ({ minutes }) =>
 	searchLogs.execute?.(
-		{ keyword: "ERROR", limit: 20, logGroup: defaults.logGroup, minutes },
+		{ keyword: "ERROR", limit: 20, logGroup: defaults.ecsLogGroup, minutes },
 		{}
 	)
 );
@@ -95,8 +119,10 @@ ${JSON.stringify(inputData, null, 1)}`
 	id: "report",
 	inputSchema: z.object({
 		alarms: evidenceSchema,
+		apiMetrics: evidenceSchema,
 		deployment: evidenceSchema,
 		ecs: evidenceSchema,
+		ecsLogs: evidenceSchema,
 		logs: evidenceSchema,
 		metrics: evidenceSchema,
 	}),
@@ -111,6 +137,6 @@ export const opsDiagnosis = createWorkflow({
 	inputSchema,
 	outputSchema: report.outputSchema,
 })
-	.parallel([alarms, metrics, logs, deployment, ecs])
+	.parallel([alarms, apiMetrics, metrics, logs, deployment, ecs, ecsLogs])
 	.then(report)
 	.commit();

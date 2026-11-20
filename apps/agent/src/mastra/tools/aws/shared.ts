@@ -3,7 +3,10 @@
 export const awsConfig = { region: process.env.AWS_REGION ?? "ap-southeast-2" };
 
 export const defaults = {
+	apiName: process.env.OPS_API_NAME ?? "jax-gh-rest",
+	apiStage: process.env.OPS_API_STAGE ?? "prod",
 	ecsCluster: process.env.OPS_ECS_CLUSTER,
+	ecsLogGroup: process.env.OPS_ECS_LOG_GROUP ?? "/ecs/go-github-users",
 	ecsService: process.env.OPS_ECS_SERVICE ?? "go-github-users",
 	lambdaFunction: process.env.OPS_LAMBDA_FUNCTION ?? "go-caller-sam",
 	logGroup: process.env.OPS_LOG_GROUP ?? "/aws/lambda/go-caller-sam",

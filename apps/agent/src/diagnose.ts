@@ -1,5 +1,5 @@
 // 命令行里跑排障 workflow：pnpm --filter agent diagnose "收藏接口报 5xx，帮我查原因"
-// 和 `ops` 的区别：五项证据由代码固定查全，模型只写报告。需要先 `aws login`，并且本地 Ollama 在运行。
+// 和 `ops` 的区别：七项证据由代码固定查全，模型只写报告。需要先 `aws login`，并且本地 Ollama 在运行。
 import { mastra } from "./mastra";
 
 const question =
