@@ -94,3 +94,73 @@ export async function collectAll(minutes: number) {
 		names.map((name, index) => [name, results[index]])
 	) as Record<EvidenceName, Evidence>;
 }
+
+// 「取证过程」的展示顺序：沿请求链路从外到内
+const displayOrder: EvidenceName[] = [
+	"alarms",
+	"apiMetrics",
+	"metrics",
+	"logs",
+	"ecsLogs",
+	"deployment",
+	"ecs",
+];
+
+// 每项证据调了哪个工具、传了什么参数、查的是什么，给人看的说明
+const evidenceSources: Record<
+	EvidenceName,
+	(minutes: number) => { calls: string; label: string; source: string }
+> = {
+	alarms: () => ({
+		calls: "`list-alarms`（onlyFiring=false）",
+		label: "告警",
+		source: "CloudWatch 告警列表（全部状态）",
+	}),
+	apiMetrics: (minutes) => ({
+		calls: `\`get-api-gateway-metrics\`（apiName=${defaults.apiName}, stage=${defaults.apiStage}, minutes=${minutes}）`,
+		label: "入口指标",
+		source: "请求数、5xx、4xx、p95 延迟",
+	}),
+	deployment: () => ({
+		calls: `\`get-lambda-deployment\`（functionName=${defaults.lambdaFunction}, alias=live）`,
+		label: "Lambda 部署",
+		source: "live 别名指向的版本和灰度配置",
+	}),
+	ecs: () => ({
+		calls: `\`get-ecs-service-status\`（serviceName=${defaults.ecsService}）`,
+		label: "ECS 服务",
+		source: "任务数、部署和最近事件",
+	}),
+	ecsLogs: (minutes) => ({
+		calls: `\`search-logs\`（logGroup=${defaults.ecsLogGroup}, keyword=ERROR, minutes=${minutes}）`,
+		label: "Go 服务日志",
+		source: "Go 服务的报错原文和接口路径",
+	}),
+	logs: (minutes) => ({
+		calls: `\`search-logs\` × 2（logGroup=${defaults.logGroup}, keyword=ERROR / warn, minutes=${minutes}）`,
+		label: "Lambda 日志",
+		source: "转发失败（ERROR）和后端返回 5xx（warn）",
+	}),
+	metrics: (minutes) => ({
+		calls: `\`get-lambda-metrics\`（functionName=${defaults.lambdaFunction}, minutes=${minutes}）`,
+		label: "Lambda 指标",
+		source: "调用数、错误数、限流、p95 耗时",
+	}),
+};
+
+// 由代码生成的取证清单（Markdown），模型照抄即可，不用自己总结查了什么
+export function describeQueries(
+	minutes: number,
+	evidence: Record<EvidenceName, Evidence>
+) {
+	const lines = displayOrder.map((name, index) => {
+		const { calls, label, source } = evidenceSources[name](minutes);
+		const { error } = evidence[name];
+		const result = error ? `❌ 失败：${error}` : source;
+		return `${index + 1}. ${error ? "❌" : "✅"} **${label}**：${calls} → ${result}`;
+	});
+	return [
+		`调用 \`collect-diagnosis-evidence\`（minutes=${minutes}），内部并行调用了以下工具：`,
+		...lines,
+	].join("\n");
+}
