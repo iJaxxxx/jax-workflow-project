@@ -148,19 +148,18 @@ const evidenceSources: Record<
 	}),
 };
 
-// 由代码生成的取证清单（Markdown），模型照抄即可，不用自己总结查了什么
+// 由代码生成的取证清单：一行一项，放在工具返回结果的最前面，Playground 的工具卡片里一眼能看到
 export function describeQueries(
 	minutes: number,
 	evidence: Record<EvidenceName, Evidence>
-) {
+): string[] {
 	const lines = displayOrder.map((name, index) => {
 		const { calls, label, source } = evidenceSources[name](minutes);
 		const { error } = evidence[name];
-		const result = error ? `❌ 失败：${error}` : source;
-		return `${index + 1}. ${error ? "❌" : "✅"} **${label}**：${calls} → ${result}`;
+		const result = error ? `失败：${error}` : source;
+		// 显示在 JSON 里，Markdown 的反引号不会被渲染，去掉
+		const plainCalls = calls.replaceAll("`", "");
+		return `${index + 1}. ${error ? "❌" : "✅"} ${label}：${plainCalls} → ${result}`;
 	});
-	return [
-		`调用 \`collect-diagnosis-evidence\`（minutes=${minutes}），内部并行调用了以下工具：`,
-		...lines,
-	].join("\n");
+	return [`内部并行调用了以下工具（minutes=${minutes}）：`, ...lines];
 }

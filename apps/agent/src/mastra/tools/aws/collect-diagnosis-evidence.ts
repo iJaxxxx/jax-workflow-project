@@ -10,11 +10,12 @@ export const collectDiagnosisEvidence = createTool({
 	execute: async ({ minutes }) => {
 		const evidence = await collectAll(minutes);
 		return {
+			// 给人看的取证清单：调了哪些工具、参数、成功与否。
+			// 键名按字母序排在最前（Biome 要求对象键排序），Playground 的工具卡片展开后第一眼就是它
+			checklist: describeQueries(minutes, evidence),
 			evidence,
 			minutes,
 			now: new Date().toISOString(),
-			// 给人看的取证清单：查了哪些资源、哪项成功哪项失败。回答开头原样展示
-			queries: describeQueries(minutes, evidence),
 		};
 	},
 	id: "collect-diagnosis-evidence",
