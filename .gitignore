@@ -61,3 +61,8 @@ temp
 .dev/
 test-results/
 playwright-report/
+
+# Mastra 本地对话存储
+apps/agent/mastra.db
+apps/agent/mastra.db-*
+apps/agent/.mastra

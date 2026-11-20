@@ -15,7 +15,9 @@
     "@aws-sdk/client-cloudwatch-logs": "^3.1169.0",
     "@aws-sdk/client-ecs": "^3.1169.0",
     "@aws-sdk/client-lambda": "^3.1169.0",
-    "@mastra/core": "^1.83.0",
+    "@mastra/core": "^1.85.0",
+    "@mastra/libsql": "^1.31.1",
+    "@mastra/memory": "^1.41.2",
     "zod": "catalog:"
   },
   "devDependencies": {

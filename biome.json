@@ -37,6 +37,7 @@
       "!**/.source",
       "!**/convex/_generated",
       "!**/.agents",
+      "!**/.mastra",
       "!**/prisma/generated",
       "!**/*.svg",
       "!docs/**/*.html",

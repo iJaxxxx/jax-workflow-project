@@ -1,4 +1,5 @@
 import { Agent } from "@mastra/core/agent";
+import { Memory } from "@mastra/memory";
 import { localModel } from "../model";
 import { getApiGatewayMetrics } from "../tools/aws/get-api-gateway-metrics";
 import { getEcsServiceStatus } from "../tools/aws/get-ecs-service-status";
@@ -39,6 +40,10 @@ export const opsAgent = new Agent({
 **证据**：逐条列出工具查到的关键数据（指标、日志原文、部署时间）。
 **根因推测**：最可能的原因，并说明把握有多大。
 **建议操作**：下一步人应该做什么。`,
+	// 记住同一个对话线程里最近的消息，可以接着上一轮的排查结果追问。
+	// 不传 storage 时使用 Mastra 实例上的 storage（见 ../storage.ts）。
+	// 工具结果（日志、指标）很长，8B 模型上下文有限，只带最近 10 条。
+	memory: new Memory({ options: { lastMessages: 10 } }),
 	model: localModel,
 	name: "AWS 运维助手",
 	tools: {
