@@ -1,51 +1,13 @@
-import {
-	GetAliasCommand,
-	GetFunctionConfigurationCommand,
-	LambdaClient,
-} from "@aws-sdk/client-lambda";
+import { defaults } from "@jax-workflow-project/ops-core";
+import { getLambdaDeployment as query } from "@jax-workflow-project/ops-core/aws/get-lambda-deployment";
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { awsConfig, callAws, defaults } from "./shared";
 
-const client = new LambdaClient(awsConfig);
-
+// 查询逻辑在 packages/ops-core（不依赖任何 Agent 框架），这里只定义 Mastra 工具的 id、描述和 schema
 export const getLambdaDeployment = createTool({
 	description:
 		"查询 Lambda 函数的运行状态和最近一次部署：别名指向哪个版本、是否在灰度、最后修改时间。用来判断故障是否和最近的发布有关。",
-	execute: async ({ functionName, alias }) => {
-		const [config, aliasInfo] = await callAws("查询 Lambda 部署", () =>
-			Promise.all([
-				client.send(
-					new GetFunctionConfigurationCommand({
-						FunctionName: functionName,
-						Qualifier: alias,
-					})
-				),
-				client.send(
-					new GetAliasCommand({ FunctionName: functionName, Name: alias })
-				),
-			])
-		);
-
-		// 灰度发布时，别名会把一部分流量分给新版本
-		const canaryWeights = aliasInfo.RoutingConfig?.AdditionalVersionWeights;
-
-		return {
-			alias,
-			canary: Object.entries(canaryWeights ?? {}).map(([version, weight]) => ({
-				trafficPercent: Math.round(weight * 100),
-				version,
-			})),
-			functionName,
-			lastModified: config.LastModified ?? null,
-			lastUpdateStatus: config.LastUpdateStatus ?? "UNKNOWN",
-			memoryMb: config.MemorySize ?? null,
-			runtime: config.Runtime ?? null,
-			state: config.State ?? "UNKNOWN",
-			timeoutSeconds: config.Timeout ?? null,
-			version: aliasInfo.FunctionVersion ?? null,
-		};
-	},
+	execute: async (input) => await query(input),
 	id: "get-lambda-deployment",
 	inputSchema: z.object({
 		alias: z.string().default("live").describe("别名，线上流量走 live"),

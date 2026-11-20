@@ -1,0 +1,222 @@
+{
+  "alarms": {
+    "data": {
+      "alarms": [
+        {
+          "metric": "AWS/Lambda/Errors",
+          "name": "go-caller-sam-live-errors",
+          "reason": "Threshold Crossed: 1 datapoint [0.0 (11/11/26 11:41:00)] was not greater than or equal to the threshold (1.0).",
+          "state": "OK",
+          "updatedAt": "2026-11-11T11:42:45.410Z"
+        },
+        {
+          "metric": "AWS/ApiGateway/5XXError",
+          "name": "jax-gh-rest-5xx",
+          "reason": "Threshold Crossed: no datapoints were received for 1 period and 1 missing datapoint was treated as [NonBreaching].",
+          "state": "OK",
+          "updatedAt": "2026-11-20T10:13:53.360Z"
+        }
+      ]
+    },
+    "error": null
+  },
+  "apiMetrics": {
+    "data": {
+      "api": "jax-gh-rest/prod",
+      "points": [
+        {
+          "errors4xx": 0,
+          "errors5xx": 1,
+          "latencyP95Ms": 2479,
+          "requests": 1,
+          "time": "2026-11-20T09:41:00.000Z"
+        },
+        {
+          "errors4xx": 0,
+          "errors5xx": 10,
+          "latencyP95Ms": 259,
+          "requests": 10,
+          "time": "2026-11-20T09:42:00.000Z"
+        },
+        {
+          "errors4xx": 0,
+          "errors5xx": 1,
+          "latencyP95Ms": 2350,
+          "requests": 1,
+          "time": "2026-11-20T09:48:00.000Z"
+        },
+        {
+          "errors4xx": 0,
+          "errors5xx": 9,
+          "latencyP95Ms": 312,
+          "requests": 9,
+          "time": "2026-11-20T09:49:00.000Z"
+        },
+        {
+          "errors4xx": 0,
+          "errors5xx": 3,
+          "latencyP95Ms": 2399,
+          "requests": 3,
+          "time": "2026-11-20T10:05:00.000Z"
+        },
+        {
+          "errors4xx": 0,
+          "errors5xx": 5,
+          "latencyP95Ms": 90,
+          "requests": 5,
+          "time": "2026-11-20T10:06:00.000Z"
+        }
+      ],
+      "summary": {
+        "errorRate5xxPercent": 100,
+        "errors4xx": 0,
+        "errors5xx": 29,
+        "maxLatencyP95Ms": 2479,
+        "requests": 29
+      },
+      "windowMinutes": 240
+    },
+    "error": null
+  },
+  "deployment": {
+    "data": {
+      "alias": "live",
+      "canary": [],
+      "functionName": "go-caller-sam",
+      "lastModified": "2026-11-11T11:26:07.000+0000",
+      "lastUpdateStatus": "Successful",
+      "memoryMb": 128,
+      "runtime": "nodejs24.x",
+      "state": "Active",
+      "timeoutSeconds": 30,
+      "version": "8"
+    },
+    "error": null
+  },
+  "ecs": {
+    "data": {
+      "deployments": [
+        {
+          "createdAt": "2026-11-20T09:36:17.397Z",
+          "rolloutState": "COMPLETED",
+          "runningCount": 1,
+          "status": "PRIMARY",
+          "taskDefinition": "go-github-users:10"
+        }
+      ],
+      "desiredCount": 1,
+      "recentEvents": [
+        {
+          "message": "(service go-github-users) has reached a steady state.",
+          "time": "2026-11-20T09:39:15.366Z"
+        },
+        {
+          "message": "(service go-github-users) (deployment ecs-svc/6066803351035253366) deployment completed.",
+          "time": "2026-11-20T09:39:15.365Z"
+        },
+        {
+          "message": "(service go-github-users) has stopped 1 running tasks: (task 47cbb32ca6f84eadb0f53900eea5a0e4).",
+          "time": "2026-11-20T09:37:51.617Z"
+        },
+        {
+          "message": "(service go-github-users) has started 1 tasks: (task 35cdb203c38e49c2858a236404b9eec1).",
+          "time": "2026-11-20T09:36:28.832Z"
+        }
+      ],
+      "runningCount": 1,
+      "serviceName": "go-github-users",
+      "status": "ACTIVE"
+    },
+    "error": null
+  },
+  "ecsLogs": {
+    "data": {
+      "count": 20,
+      "events": [
+        {
+          "message": "{\"time\":\"2026-11-20T09:41:55.064321075Z\",\"level\":\"ERROR\",\"msg\":\"request failed\",\"err\":\"injected fault: simulated database query timeout\"}",
+          "time": "2026-11-20T09:41:55.064Z"
+        },
+        {
+          "message": "{\"time\":\"2026-11-20T09:42:00.581804739Z\",\"level\":\"ERROR\",\"msg\":\"request failed\",\"err\":\"injected fault: simulated database query timeout\"}",
+          "time": "2026-11-20T09:42:00.581Z"
+        },
+        {
+          "message": "{\"time\":\"2026-11-20T09:42:02.843933039Z\",\"level\":\"ERROR\",\"msg\":\"request failed\",\"err\":\"injected fault: simulated database query timeout\"}",
+          "time": "2026-11-20T09:42:02.844Z"
+        },
+        {
+          "message": "{\"time\":\"2026-11-20T09:42:05.076972983Z\",\"level\":\"ERROR\",\"msg\":\"request failed\",\"err\":\"injected fault: simulated database query timeout\"}",
+          "time": "2026-11-20T09:42:05.077Z"
+        }
+      ],
+      "keyword": "ERROR",
+      "logGroup": "/ecs/go-github-users"
+    },
+    "error": null
+  },
+  "logs": {
+    "data": {
+      "errors": {
+        "count": 0,
+        "events": [],
+        "keyword": "ERROR",
+        "logGroup": "/aws/lambda/go-caller-sam"
+      },
+      "upstream5xx": {
+        "count": 10,
+        "events": [
+          {
+            "message": "2026-11-20T09:41:55.164Z\te4fe5d60-2174-4b5d-beac-ce2319b06a83\tINFO\t{\"level\":\"warn\",\"msg\":\"forward done\",\"requestId\":\"e4fe5d60-2174-4b5d-beac-ce2319b06a83\",\"apiRequestId\":\"c7097fb8-6ac5-49ea-9090-56ace93081bd\",\"functionVersion\":\"8\",\"callerVersion\":\"v3\",\"coldStart\":true,\"method\":\"GET\",\"path\":\"/debug/fail\",\"target\":\"go-github-users.jax.local:8080\",\"ips\":[\"10.0.12.187\"],\"dnsMs\":1782,\"attempts\":[{\"n\":1",
+            "time": "2026-11-20T09:41:55.164Z"
+          },
+          {
+            "message": "2026-11-20T09:42:00.582Z\tc55d33cb-9a41-4267-a183-1716fc4905ba\tINFO\t{\"level\":\"warn\",\"msg\":\"forward done\",\"requestId\":\"c55d33cb-9a41-4267-a183-1716fc4905ba\",\"apiRequestId\":\"b09cad45-511a-4209-9902-4befaa39d48f\",\"functionVersion\":\"8\",\"callerVersion\":\"v3\",\"coldStart\":false,\"method\":\"GET\",\"path\":\"/debug/fail\",\"target\":\"go-github-users.jax.local:8080\",\"ips\":[\"10.0.12.187\"],\"dnsMs\":59,\"attempts\":[{\"n\":1,",
+            "time": "2026-11-20T09:42:00.582Z"
+          },
+          {
+            "message": "2026-11-20T09:42:02.861Z\taea39358-60ea-46bc-95be-3a1155ed7e6b\tINFO\t{\"level\":\"warn\",\"msg\":\"forward done\",\"requestId\":\"aea39358-60ea-46bc-95be-3a1155ed7e6b\",\"apiRequestId\":\"a57a68c3-6d44-4208-92f7-0d2fd42d5e92\",\"functionVersion\":\"8\",\"callerVersion\":\"v3\",\"coldStart\":false,\"method\":\"GET\",\"path\":\"/debug/fail\",\"target\":\"go-github-users.jax.local:8080\",\"ips\":[\"10.0.12.187\"],\"dnsMs\":11,\"attempts\":[{\"n\":1,",
+            "time": "2026-11-20T09:42:02.861Z"
+          }
+        ],
+        "keyword": "warn",
+        "logGroup": "/aws/lambda/go-caller-sam"
+      }
+    },
+    "error": null
+  },
+  "metrics": {
+    "data": {
+      "functionName": "go-caller-sam",
+      "points": [
+        {
+          "durationP95Ms": 2107,
+          "errors": 0,
+          "invocations": 11,
+          "time": "2026-11-20T09:40:00.000Z"
+        },
+        {
+          "durationP95Ms": 2060,
+          "errors": 0,
+          "invocations": 10,
+          "time": "2026-11-20T09:45:00.000Z"
+        },
+        {
+          "durationP95Ms": 2090,
+          "errors": 0,
+          "invocations": 8,
+          "time": "2026-11-20T10:05:00.000Z"
+        }
+      ],
+      "summary": {
+        "errorRatePercent": 0,
+        "errors": 0,
+        "invocations": 29,
+        "maxDurationP95Ms": 2107,
+        "throttles": 0
+      },
+      "windowMinutes": 240
+    },
+    "error": null
+  }
+}

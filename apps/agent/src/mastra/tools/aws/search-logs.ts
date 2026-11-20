@@ -1,41 +1,13 @@
-import {
-	CloudWatchLogsClient,
-	FilterLogEventsCommand,
-} from "@aws-sdk/client-cloudwatch-logs";
+import { defaults } from "@jax-workflow-project/ops-core";
+import { searchLogs as query } from "@jax-workflow-project/ops-core/aws/search-logs";
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { awsConfig, callAws, defaults, lookbackWindow } from "./shared";
 
-const client = new CloudWatchLogsClient(awsConfig);
-
-// 日志原文可能很长，截断后再给模型，避免撑爆上下文
-const MAX_MESSAGE_LENGTH = 400;
-
+// 查询逻辑在 packages/ops-core（不依赖任何 Agent 框架），这里只定义 Mastra 工具的 id、描述和 schema
 export const searchLogs = createTool({
 	description:
 		"在 CloudWatch 日志组里按关键词搜索最近的日志。用来找具体的报错信息和堆栈。",
-	execute: async ({ logGroup, keyword, minutes, limit }) => {
-		const { start, end } = lookbackWindow(minutes);
-		const res = await callAws("搜索日志", () =>
-			client.send(
-				new FilterLogEventsCommand({
-					endTime: end.getTime(),
-					// 关键词加引号按字面匹配；留空则不过滤
-					filterPattern: keyword ? `"${keyword}"` : undefined,
-					limit,
-					logGroupName: logGroup,
-					startTime: start.getTime(),
-				})
-			)
-		);
-
-		const events = (res.events ?? []).map((event) => ({
-			message: (event.message ?? "").trim().slice(0, MAX_MESSAGE_LENGTH),
-			time: new Date(event.timestamp ?? 0).toISOString(),
-		}));
-
-		return { count: events.length, events, keyword, logGroup };
-	},
+	execute: async (input) => await query(input),
 	id: "search-logs",
 	inputSchema: z.object({
 		keyword: z

@@ -1,5 +1,6 @@
-// AWS 工具共用的配置。凭证走 SDK 默认链（本机 `aws login` 的会话、环境变量等），这里不写任何密钥。
+// AWS 查询共用的配置。凭证走 SDK 默认链（本机 `aws login` 的会话、环境变量等），这里不写任何密钥。
 // 默认资源名对应 docs/aws-architecture.html 里的那套环境，可以用环境变量覆盖。
+// 这个包不依赖任何 Agent 框架：Mastra（apps/agent）和 LangChain（apps/agent-langchain）都只是在外面包一层工具定义。
 export const awsConfig = { region: process.env.AWS_REGION ?? "ap-southeast-2" };
 
 export const defaults = {

@@ -1,54 +1,49 @@
 // 排障要查的七项证据，沿请求链路从外到内：告警 → API Gateway 入口 → Lambda → ECS 上的 Go 服务。
-// ops-diagnosis workflow（每项一个并行步骤）和 collect-diagnosis-evidence 工具（给 Agent 一次查全）共用这里。
-import { getApiGatewayMetrics } from "./get-api-gateway-metrics";
-import { getEcsServiceStatus } from "./get-ecs-service-status";
-import { getLambdaDeployment } from "./get-lambda-deployment";
-import { getLambdaMetrics } from "./get-lambda-metrics";
-import { listAlarms } from "./list-alarms";
-import { searchLogs } from "./search-logs";
-import { defaults } from "./shared";
+// 两边的 Agent 共用这里：
+// - Mastra：ops-diagnosis workflow（每项一个并行步骤）和 collect-diagnosis-evidence 工具
+// - LangChain：ops-diagnosis StateGraph（每项一个并行节点）和 collect_diagnosis_evidence 工具
+import { getApiGatewayMetrics } from "./aws/get-api-gateway-metrics";
+import { getEcsServiceStatus } from "./aws/get-ecs-service-status";
+import { getLambdaDeployment } from "./aws/get-lambda-deployment";
+import { getLambdaMetrics } from "./aws/get-lambda-metrics";
+import { listAlarms } from "./aws/list-alarms";
+import { searchLogs } from "./aws/search-logs";
+import { defaults } from "./aws/shared";
 
 type Collector = (minutes: number) => Promise<unknown>;
 
-// 工具的 execute 第二个参数是运行上下文，直接调用时不需要
-const noContext = {};
-
 export const evidenceCollectors = {
-	alarms: async () =>
-		await listAlarms.execute?.({ onlyFiring: false }, noContext),
+	alarms: async () => await listAlarms({ onlyFiring: false }),
 
 	apiMetrics: async (minutes) =>
-		await getApiGatewayMetrics.execute?.(
-			{ apiName: defaults.apiName, minutes, stage: defaults.apiStage },
-			noContext
-		),
+		await getApiGatewayMetrics({
+			apiName: defaults.apiName,
+			minutes,
+			stage: defaults.apiStage,
+		}),
 
 	deployment: async () =>
-		await getLambdaDeployment.execute?.(
-			{ alias: "live", functionName: defaults.lambdaFunction },
-			noContext
-		),
+		await getLambdaDeployment({
+			alias: "live",
+			functionName: defaults.lambdaFunction,
+		}),
 
 	ecs: async () =>
-		await getEcsServiceStatus.execute?.(
-			{ serviceName: defaults.ecsService },
-			noContext
-		),
+		await getEcsServiceStatus({ serviceName: defaults.ecsService }),
 
 	// Go 服务自己的报错（slog JSON 日志里是 "level":"ERROR"），这里才看得到真正的错误原因
 	ecsLogs: async (minutes) =>
-		await searchLogs.execute?.(
-			{ keyword: "ERROR", limit: 20, logGroup: defaults.ecsLogGroup, minutes },
-			noContext
-		),
+		await searchLogs({
+			keyword: "ERROR",
+			limit: 20,
+			logGroup: defaults.ecsLogGroup,
+			minutes,
+		}),
 
 	// go-caller 的日志：转发失败（Lambda 抛错）带 ERROR；后端返回 5xx 时它记一条 "level":"warn"
 	logs: async (minutes) => {
 		const search = (keyword: string) =>
-			searchLogs.execute?.(
-				{ keyword, limit: 10, logGroup: defaults.logGroup, minutes },
-				noContext
-			);
+			searchLogs({ keyword, limit: 10, logGroup: defaults.logGroup, minutes });
 		const [errors, upstream5xx] = await Promise.all([
 			search("ERROR"),
 			search("warn"),
@@ -57,10 +52,7 @@ export const evidenceCollectors = {
 	},
 
 	metrics: async (minutes) =>
-		await getLambdaMetrics.execute?.(
-			{ functionName: defaults.lambdaFunction, minutes },
-			noContext
-		),
+		await getLambdaMetrics({ functionName: defaults.lambdaFunction, minutes }),
 } satisfies Record<string, Collector>;
 
 export type EvidenceName = keyof typeof evidenceCollectors;
@@ -69,6 +61,9 @@ export interface Evidence {
 	data: unknown;
 	error: string | null;
 }
+
+// 七项证据的名字，顺序和 Object.keys(evidenceCollectors) 一致
+export const evidenceNames = Object.keys(evidenceCollectors) as EvidenceName[];
 
 // 单项失败只记录错误，不影响其他证据
 export async function collectOne(
@@ -86,12 +81,11 @@ export async function collectOne(
 }
 
 export async function collectAll(minutes: number) {
-	const names = Object.keys(evidenceCollectors) as EvidenceName[];
 	const results = await Promise.all(
-		names.map((name) => collectOne(name, minutes))
+		evidenceNames.map((name) => collectOne(name, minutes))
 	);
 	return Object.fromEntries(
-		names.map((name, index) => [name, results[index]])
+		evidenceNames.map((name, index) => [name, results[index]])
 	) as Record<EvidenceName, Evidence>;
 }
 
@@ -148,7 +142,7 @@ const evidenceSources: Record<
 	}),
 };
 
-// 由代码生成的取证清单：一行一项，放在工具返回结果的最前面，Playground 的工具卡片里一眼能看到
+// 由代码生成的取证清单：一行一项，放在工具返回结果的最前面，调试界面的工具卡片里一眼能看到
 export function describeQueries(
 	minutes: number,
 	evidence: Record<EvidenceName, Evidence>
@@ -162,4 +156,20 @@ export function describeQueries(
 		return `${index + 1}. ${error ? "❌" : "✅"} ${label}：${plainCalls} → ${result}`;
 	});
 	return [`内部并行调用了以下工具（minutes=${minutes}）：`, ...lines];
+}
+
+// 「一键取证」工具的完整返回值。Mastra 和 LangChain 的 collect-diagnosis-evidence 工具都直接返回它
+export async function collectDiagnosisEvidence(minutes: number) {
+	const evidence = await collectAll(minutes);
+	return {
+		// 给人看的取证清单：调了哪些工具、参数、成功与否。
+		// 键名按字母序排在最前（Biome 要求对象键排序），工具卡片展开后第一眼就是它
+		checklist: describeQueries(minutes, evidence),
+		evidence,
+		minutes,
+		now: new Date().toISOString(),
+		// 8B 模型读完一大段证据就想直接写结论，跳过查 wiki。把下一步写进工具结果末尾（键名排序后在最后），比只写在 prompt 里管用
+		wikiNext:
+			"证据已查完。下一步调用 list-wiki-pages，再用 read-wiki-page 读最相关的 1~2 页，然后才能写回答。",
+	};
 }

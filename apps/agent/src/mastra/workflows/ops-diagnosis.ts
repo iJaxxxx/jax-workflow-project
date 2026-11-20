@@ -1,9 +1,14 @@
 // 排障 workflow：用代码固定「七项证据全部查到」，模型只负责最后的汇总。
 // 证据沿请求链路从外到内：API Gateway 入口 → Lambda → ECS 上的 Go 服务。
 // 对比 ops-agent：那边由模型自己决定调哪些工具，小模型经常查两项就下结论。
+
+import {
+	collectOne,
+	type EvidenceName,
+} from "@jax-workflow-project/ops-core/evidence";
+import { buildReportPrompt } from "@jax-workflow-project/ops-core/report-prompt";
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
-import { collectOne, type EvidenceName } from "../tools/aws/evidence";
 
 const inputSchema = z.object({
 	minutes: z
@@ -24,7 +29,7 @@ const evidenceSchema = z.object({
 
 type Input = z.infer<typeof inputSchema>;
 
-// 每项证据一个步骤，Playground 里能看到它们并行执行。具体查什么见 ../tools/aws/evidence.ts
+// 每项证据一个步骤，Playground 里能看到它们并行执行。具体查什么见 packages/ops-core/src/evidence.ts
 // Id 用泛型保留字面量类型：并行步骤的输出以 id 为键，下一步的 inputSchema 要和它对上
 function evidenceStep<Id extends EvidenceName>(id: Id) {
 	return createStep({
@@ -48,11 +53,12 @@ const report = createStep({
 		const { question, minutes } = getInitData<Input>();
 		const reporter = mastra.getAgent("opsReporter");
 		const response = await reporter.generate(
-			`用户的问题：${question}
-查询范围：最近 ${minutes} 分钟，当前时间 ${new Date().toISOString()}
-
-证据：
-${JSON.stringify(inputData, null, 1)}`
+			buildReportPrompt({
+				evidence: inputData,
+				minutes,
+				now: new Date().toISOString(),
+				question,
+			})
 		);
 		return { evidence: inputData, report: response.text };
 	},
