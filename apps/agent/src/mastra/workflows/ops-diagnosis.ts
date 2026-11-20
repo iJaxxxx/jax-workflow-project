@@ -3,13 +3,7 @@
 // 对比 ops-agent：那边由模型自己决定调哪些工具，小模型经常查两项就下结论。
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
-import { getApiGatewayMetrics } from "../tools/aws/get-api-gateway-metrics";
-import { getEcsServiceStatus } from "../tools/aws/get-ecs-service-status";
-import { getLambdaDeployment } from "../tools/aws/get-lambda-deployment";
-import { getLambdaMetrics } from "../tools/aws/get-lambda-metrics";
-import { listAlarms } from "../tools/aws/list-alarms";
-import { searchLogs } from "../tools/aws/search-logs";
-import { defaults } from "../tools/aws/shared";
+import { collectOne, type EvidenceName } from "../tools/aws/evidence";
 
 const inputSchema = z.object({
 	minutes: z
@@ -30,78 +24,24 @@ const evidenceSchema = z.object({
 
 type Input = z.infer<typeof inputSchema>;
 
+// 每项证据一个步骤，Playground 里能看到它们并行执行。具体查什么见 ../tools/aws/evidence.ts
 // Id 用泛型保留字面量类型：并行步骤的输出以 id 为键，下一步的 inputSchema 要和它对上
-function evidenceStep<Id extends string>(
-	id: Id,
-	collect: (input: Input) => unknown
-) {
+function evidenceStep<Id extends EvidenceName>(id: Id) {
 	return createStep({
-		execute: async ({ inputData }) => {
-			try {
-				return { data: await collect(inputData), error: null };
-			} catch (error) {
-				return {
-					data: null,
-					error: error instanceof Error ? error.message : String(error),
-				};
-			}
-		},
+		execute: ({ inputData }) => collectOne(id, inputData.minutes),
 		id,
 		inputSchema,
 		outputSchema: evidenceSchema,
 	});
 }
 
-const alarms = evidenceStep("alarms", () =>
-	listAlarms.execute?.({ onlyFiring: false }, {})
-);
-
-const apiMetrics = evidenceStep("apiMetrics", ({ minutes }) =>
-	getApiGatewayMetrics.execute?.(
-		{ apiName: defaults.apiName, minutes, stage: defaults.apiStage },
-		{}
-	)
-);
-
-const metrics = evidenceStep("metrics", ({ minutes }) =>
-	getLambdaMetrics.execute?.(
-		{ functionName: defaults.lambdaFunction, minutes },
-		{}
-	)
-);
-
-// go-caller 的日志：转发失败（Lambda 抛错）带 ERROR；后端返回 5xx 时它记一条 "level":"warn"
-const logs = evidenceStep("logs", async ({ minutes }) => {
-	const search = (keyword: string) =>
-		searchLogs.execute?.(
-			{ keyword, limit: 10, logGroup: defaults.logGroup, minutes },
-			{}
-		);
-	const [errors, upstream5xx] = await Promise.all([
-		search("ERROR"),
-		search("warn"),
-	]);
-	return { errors, upstream5xx };
-});
-
-// Go 服务自己的报错（slog JSON 日志里是 "level":"ERROR"），这里才看得到真正的错误原因
-const ecsLogs = evidenceStep("ecsLogs", ({ minutes }) =>
-	searchLogs.execute?.(
-		{ keyword: "ERROR", limit: 20, logGroup: defaults.ecsLogGroup, minutes },
-		{}
-	)
-);
-
-const deployment = evidenceStep("deployment", () =>
-	getLambdaDeployment.execute?.(
-		{ alias: "live", functionName: defaults.lambdaFunction },
-		{}
-	)
-);
-
-const ecs = evidenceStep("ecs", () =>
-	getEcsServiceStatus.execute?.({ serviceName: defaults.ecsService }, {})
-);
+const alarms = evidenceStep("alarms");
+const apiMetrics = evidenceStep("apiMetrics");
+const metrics = evidenceStep("metrics");
+const logs = evidenceStep("logs");
+const ecsLogs = evidenceStep("ecsLogs");
+const deployment = evidenceStep("deployment");
+const ecs = evidenceStep("ecs");
 
 const report = createStep({
 	execute: async ({ inputData, getInitData, mastra }) => {

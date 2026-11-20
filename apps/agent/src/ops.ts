@@ -6,7 +6,7 @@ const question =
 	process.argv.slice(2).join(" ") ||
 	"检查一下线上服务最近一小时是否健康，有问题的话帮我找原因";
 
-const MAX_STEPS = 10;
+const MAX_STEPS = 8;
 
 const agent = mastra.getAgent("opsAgent");
 // 一次排障要连续调多个工具，步数上限给够
